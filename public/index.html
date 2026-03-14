@@ -1656,9 +1656,40 @@
       <button class="modal-close" onclick="closeModal('shareModal')">&#10005;</button>
     </div>
     <div class="modal-body">
-      <div class="share-preview" id="sharePreview">
-        <canvas id="shareCanvas" width="600" height="400"></canvas>
+      <!-- Mode tabs -->
+      <div class="auth-tabs" style="margin-bottom:16px">
+        <button class="auth-tab active" id="shareTabCard" onclick="switchShareMode('card')">Karte</button>
+        <button class="auth-tab" id="shareTabStory" onclick="switchShareMode('story')">Story + Foto</button>
       </div>
+
+      <!-- Card mode -->
+      <div id="shareCardMode">
+        <div class="share-preview" id="sharePreview">
+          <canvas id="shareCanvas" width="600" height="400"></canvas>
+        </div>
+      </div>
+
+      <!-- Story mode -->
+      <div id="shareStoryMode" style="display:none">
+        <div id="storyPhotoArea" style="border:2px dashed #E8ECF0;border-radius:12px;padding:32px;text-align:center;cursor:pointer;margin-bottom:16px;transition:border-color 0.2s" onclick="document.getElementById('storyPhotoInput').click()">
+          <div style="font-size:36px;margin-bottom:8px">&#128247;</div>
+          <div style="font-size:13px;font-weight:700;color:var(--ftt-text)">Foto ausw&auml;hlen</div>
+          <div style="font-size:11px;color:var(--ftt-text-light);margin-top:4px">Dein Ski-, Schwimm- oder Bergfoto</div>
+          <input type="file" id="storyPhotoInput" accept="image/*" capture="environment" style="display:none" onchange="handleStoryPhoto(event)">
+        </div>
+        <div class="share-preview" id="storyPreview" style="display:none">
+          <canvas id="storyCanvas" width="1080" height="1920"></canvas>
+        </div>
+        <div id="stickerPositionRow" style="display:none;margin-bottom:16px">
+          <label class="form-label">Sticker Position</label>
+          <div style="display:flex;gap:6px">
+            <button class="sticker-pos-btn active" data-pos="bottom" onclick="setStickerPos('bottom')" style="flex:1;padding:8px;border:2px solid var(--ftt-blue);background:#EBF5FF;border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--ftt-blue-deep)">Unten</button>
+            <button class="sticker-pos-btn" data-pos="top" onclick="setStickerPos('top')" style="flex:1;padding:8px;border:2px solid #E8ECF0;background:white;border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--ftt-text)">Oben</button>
+            <button class="sticker-pos-btn" data-pos="center" onclick="setStickerPos('center')" style="flex:1;padding:8px;border:2px solid #E8ECF0;background:white;border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--ftt-text)">Mitte</button>
+          </div>
+        </div>
+      </div>
+
       <button class="btn-submit orange" onclick="shareImage()">Bild teilen</button>
       <button class="btn-outline" onclick="downloadShareImage()" style="margin-top:8px">Bild speichern</button>
     </div>
@@ -2755,9 +2786,167 @@ function quickAddDiscover(venueId) {
 }
 
 // ========== SHARE CARD ==========
+let shareMode = 'card';
+let storyPhoto = null;
+let stickerPos = 'bottom';
+
 function openShareModal() {
+  shareMode = 'card';
+  storyPhoto = null;
+  switchShareMode('card');
   document.getElementById('shareModal').classList.add('active');
   renderShareCard();
+}
+
+function switchShareMode(mode) {
+  shareMode = mode;
+  document.getElementById('shareTabCard').classList.toggle('active', mode === 'card');
+  document.getElementById('shareTabStory').classList.toggle('active', mode === 'story');
+  document.getElementById('shareCardMode').style.display = mode === 'card' ? 'block' : 'none';
+  document.getElementById('shareStoryMode').style.display = mode === 'story' ? 'block' : 'none';
+  if (mode === 'card') renderShareCard();
+}
+
+function setStickerPos(pos) {
+  stickerPos = pos;
+  document.querySelectorAll('.sticker-pos-btn').forEach(b => {
+    const active = b.dataset.pos === pos;
+    b.style.borderColor = active ? 'var(--ftt-blue)' : '#E8ECF0';
+    b.style.background = active ? '#EBF5FF' : 'white';
+    b.style.color = active ? 'var(--ftt-blue-deep)' : 'var(--ftt-text)';
+  });
+  if (storyPhoto) renderStoryCanvas();
+}
+
+function handleStoryPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() {
+      storyPhoto = img;
+      document.getElementById('storyPhotoArea').style.display = 'none';
+      document.getElementById('storyPreview').style.display = 'block';
+      document.getElementById('stickerPositionRow').style.display = 'block';
+      renderStoryCanvas();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderStoryCanvas() {
+  const canvas = document.getElementById('storyCanvas');
+  const ctx = canvas.getContext('2d');
+  const w = 1080, h = 1920;
+  canvas.width = w;
+  canvas.height = h;
+
+  // Draw photo covering full canvas
+  if (storyPhoto) {
+    const imgRatio = storyPhoto.width / storyPhoto.height;
+    const canvasRatio = w / h;
+    let sw, sh, sx, sy;
+    if (imgRatio > canvasRatio) {
+      sh = storyPhoto.height;
+      sw = sh * canvasRatio;
+      sx = (storyPhoto.width - sw) / 2;
+      sy = 0;
+    } else {
+      sw = storyPhoto.width;
+      sh = sw / canvasRatio;
+      sx = 0;
+      sy = (storyPhoto.height - sh) / 2;
+    }
+    ctx.drawImage(storyPhoto, sx, sy, sw, sh, 0, 0, w, h);
+
+    // Slight darkening for readability
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.fillRect(0, 0, w, h);
+  } else {
+    ctx.fillStyle = '#1B7A9A';
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  // Draw sticker
+  drawSticker(ctx, w, h);
+}
+
+function drawSticker(ctx, canvasW, canvasH) {
+  const ticket = ticketTypes.find(t => t.id === state.ticketType) || ticketTypes[0];
+  const total = state.activities.reduce((s, a) => s + a.price, 0);
+  const pct = Math.min(Math.round((total / ticket.price) * 100), 100);
+  const count = state.activities.length;
+  const uniqueVenues = new Set(state.activities.map(a => a.venueId)).size;
+
+  // Sticker dimensions
+  const sW = canvasW - 80;
+  const sH = 380;
+  const sX = 40;
+  let sY;
+  if (stickerPos === 'top') sY = 120;
+  else if (stickerPos === 'center') sY = (canvasH - sH) / 2;
+  else sY = canvasH - sH - 120;
+
+  // Sticker background with blur effect
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.beginPath(); ctx.roundRect(sX, sY, sW, sH, 28); ctx.fill();
+
+  // Glass effect border
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(sX, sY, sW, sH, 28); ctx.stroke();
+  ctx.restore();
+
+  const pad = 36;
+  const x = sX + pad;
+  const y = sY + pad;
+  const innerW = sW - pad * 2;
+
+  // Title line
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.font = '700 22px Montserrat, sans-serif';
+  ctx.fillText('FREIZEITTICKET TIROL', x, y + 20);
+
+  // Big value
+  ctx.fillStyle = 'white';
+  ctx.font = '900 80px Montserrat, sans-serif';
+  ctx.fillText(`\u20AC${total.toFixed(0)}`, x, y + 115);
+
+  // Subtitle
+  ctx.font = '600 24px Montserrat, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.fillText(`von \u20AC${ticket.price} ausgenutzt`, x, y + 150);
+
+  // Progress bar
+  const barY = y + 175;
+  const barH = 16;
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.beginPath(); ctx.roundRect(x, barY, innerW, barH, 8); ctx.fill();
+  ctx.fillStyle = pct >= 100 ? '#27AE60' : 'white';
+  ctx.beginPath(); ctx.roundRect(x, barY, Math.max(innerW * pct / 100, 12), barH, 8); ctx.fill();
+
+  // Stats
+  const statsY = barY + 55;
+  ctx.fillStyle = 'white';
+  ctx.font = '800 36px Montserrat, sans-serif';
+  ctx.fillText(`${pct}%`, x, statsY);
+  ctx.fillText(`${count}`, x + innerW * 0.35, statsY);
+  ctx.fillText(`${uniqueVenues}`, x + innerW * 0.7, statsY);
+
+  ctx.font = '600 16px Montserrat, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.fillText('AUSGENUTZT', x, statsY + 24);
+  ctx.fillText('AKTIVIT\u00C4TEN', x + innerW * 0.35, statsY + 24);
+  ctx.fillText('ORTE', x + innerW * 0.7, statsY + 24);
+
+  // Footer URL
+  ctx.font = '600 18px Montserrat, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.fillText('hast-du-schon-ausgenutzt.vercel.app', x, sY + sH - pad + 5);
 }
 
 function renderShareCard() {
@@ -2772,14 +2961,14 @@ function renderShareCard() {
   const pct = Math.min(Math.round((total / ticket.price) * 100), 100);
   const count = state.activities.length;
   const name = currentUser ? currentUser.displayName : 'Anonym';
+  const uniqueVenues = new Set(state.activities.map(a => a.venueId)).size;
 
   // Background gradient
   const grad = ctx.createLinearGradient(0, 0, w, h);
   grad.addColorStop(0, '#3EAACC');
   grad.addColorStop(1, '#1B7A9A');
   ctx.fillStyle = grad;
-  ctx.roundRect(0, 0, w, h, 20);
-  ctx.fill();
+  ctx.beginPath(); ctx.roundRect(0, 0, w, h, 20); ctx.fill();
 
   // Decorative circles
   ctx.fillStyle = 'rgba(255,255,255,0.06)';
@@ -2789,7 +2978,6 @@ function renderShareCard() {
   // Title
   ctx.fillStyle = 'rgba(255,255,255,0.8)';
   ctx.font = '600 11px Montserrat, sans-serif';
-  ctx.letterSpacing = '2px';
   ctx.fillText('FREIZEITTICKET TIROL', 40, 48);
 
   // Name
@@ -2806,24 +2994,18 @@ function renderShareCard() {
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
   ctx.fillText(`von \u20AC${ticket.price} ausgenutzt`, 40, 210);
 
-  // Progress bar bg
+  // Progress bar
   const barX = 40, barY = 235, barW = w - 80, barH = 14;
   ctx.fillStyle = 'rgba(255,255,255,0.25)';
   ctx.beginPath(); ctx.roundRect(barX, barY, barW, barH, 7); ctx.fill();
-
-  // Progress bar fill
   ctx.fillStyle = pct >= 100 ? '#27AE60' : 'white';
-  const fillW = Math.max(barW * (pct / 100), 10);
-  ctx.beginPath(); ctx.roundRect(barX, barY, fillW, barH, 7); ctx.fill();
+  ctx.beginPath(); ctx.roundRect(barX, barY, Math.max(barW * pct / 100, 10), barH, 7); ctx.fill();
 
   // Stats row
   ctx.fillStyle = 'white';
   ctx.font = '800 28px Montserrat, sans-serif';
   ctx.fillText(`${pct}%`, 40, 300);
   ctx.fillText(`${count}`, 200, 300);
-
-  // Unique venues
-  const uniqueVenues = new Set(state.activities.map(a => a.venueId)).size;
   ctx.fillText(`${uniqueVenues}`, 360, 300);
 
   ctx.font = '600 10px Montserrat, sans-serif';
@@ -2837,7 +3019,7 @@ function renderShareCard() {
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.fillText('hast-du-schon-ausgenutzt.vercel.app', 40, h - 24);
 
-  // Orange badge
+  // Badge
   if (pct >= 100) {
     ctx.fillStyle = '#27AE60';
     ctx.beginPath(); ctx.roundRect(w - 180, h - 50, 140, 30, 8); ctx.fill();
@@ -2853,8 +3035,13 @@ function renderShareCard() {
   }
 }
 
+function getActiveCanvas() {
+  if (shareMode === 'story' && storyPhoto) return document.getElementById('storyCanvas');
+  return document.getElementById('shareCanvas');
+}
+
 async function shareImage() {
-  const canvas = document.getElementById('shareCanvas');
+  const canvas = getActiveCanvas();
   try {
     const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
     const file = new File([blob], 'freizeitticket-stats.png', { type: 'image/png' });
@@ -2874,7 +3061,7 @@ async function shareImage() {
 }
 
 function downloadShareImage() {
-  const canvas = document.getElementById('shareCanvas');
+  const canvas = getActiveCanvas();
   const link = document.createElement('a');
   link.download = 'freizeitticket-stats.png';
   link.href = canvas.toDataURL('image/png');
