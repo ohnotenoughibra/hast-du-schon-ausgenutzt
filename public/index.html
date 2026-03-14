@@ -1053,6 +1053,146 @@
     .chip { min-width: 0; }
   }
 
+  /* ========== DAILY COST TICKER ========== */
+  .daily-cost-card {
+    background: var(--ftt-card);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .daily-cost-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .daily-cost-icon { font-size: 24px; }
+
+  .daily-cost-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ftt-text-light);
+  }
+
+  .daily-cost-value {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--ftt-success);
+  }
+
+  .daily-cost-sub {
+    font-size: 10px;
+    color: var(--ftt-text-light);
+    font-weight: 600;
+  }
+
+  /* ========== STREAK ========== */
+  .streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #FF6B35, #E8871E);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 800;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+  }
+
+  .streak-badge.cold {
+    background: linear-gradient(135deg, #95A5B5, #7F8C9B);
+  }
+
+  /* ========== DISCOVER SECTION ========== */
+  .discover-section { margin-top: 8px; }
+
+  .discover-card {
+    background: var(--ftt-card);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+
+  .discover-card:hover { transform: translateY(-1px); }
+  .discover-card:active { transform: scale(0.98); }
+
+  .discover-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #F0F9FC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .discover-info { flex: 1; min-width: 0; }
+
+  .discover-name {
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .discover-meta {
+    font-size: 11px;
+    color: var(--ftt-text-light);
+    font-weight: 500;
+  }
+
+  .discover-value {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ftt-orange);
+    flex-shrink: 0;
+  }
+
+  .discover-toggle {
+    background: none;
+    border: none;
+    color: var(--ftt-blue);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  /* ========== SHARE CARD ========== */
+  .share-preview {
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 16px;
+  }
+
+  .share-preview canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
   /* ========== CONFETTI ========== */
   .confetti-container {
     position: fixed;
@@ -1154,8 +1294,24 @@
 
     <div class="tracker-grid">
     <div class="tracker-left">
+    <!-- DAILY COST TICKER -->
+    <div class="daily-cost-card" id="dailyCostCard" style="display:none">
+      <div class="daily-cost-left">
+        <div class="daily-cost-icon">&#128176;</div>
+        <div>
+          <div class="daily-cost-label">Effektiver Tagespreis</div>
+          <div class="daily-cost-value" id="dailyCostValue">&euro;0</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="daily-cost-sub" id="dailyCostDays">- Tage genutzt</div>
+        <div class="daily-cost-sub" id="dailyCostSaved">- gespart</div>
+      </div>
+    </div>
+
     <!-- HERO -->
-    <div class="hero-card">
+    <div class="hero-card" style="position:relative">
+      <div class="streak-badge" id="streakBadge" style="display:none"><span id="streakIcon">&#128293;</span> <span id="streakCount">0</span> Wochen</div>
       <div class="hero-question">Dein Ticketwert</div>
       <div class="hero-value" id="heroValue">&euro;0</div>
       <div class="hero-of">von <span id="heroTicketPrice">&euro;759</span> ausgenutzt</div>
@@ -1213,6 +1369,23 @@
         <div class="empty-state-sub">Tippe + um deine erste Aktivit&auml;t hinzuzuf&uuml;gen</div>
       </div>
     </div>
+    <!-- DISCOVER SECTION -->
+    <div class="discover-section" id="discoverSection" style="display:none">
+      <div class="section-header" style="margin-top:24px">
+        <div class="section-title">Entdecke Tirol</div>
+        <button class="discover-toggle" id="discoverToggle" onclick="toggleDiscover()">Alle zeigen</button>
+      </div>
+      <div class="empty-state-sub" style="margin-bottom:12px;color:var(--ftt-text-light)">Orte die du noch nicht besucht hast &mdash; sortiert nach Wert</div>
+      <div id="discoverList"></div>
+    </div>
+
+    <!-- SHARE BUTTON -->
+    <div style="margin-top:24px;text-align:center" id="shareSection">
+      <button class="btn-outline" onclick="openShareModal()" style="margin-top:0;display:inline-flex;align-items:center;gap:8px;width:auto;padding:12px 24px">
+        <span style="font-size:18px">&#128247;</span> Fortschritt teilen
+      </button>
+    </div>
+
     </div><!-- /tracker-right -->
     </div><!-- /tracker-grid -->
   </div>
@@ -1470,6 +1643,24 @@
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ftt-text-light);margin-bottom:8px">Teile diesen Code mit Freunden</div>
       <div id="codeResultValue" style="font-size:36px;font-weight:900;letter-spacing:6px;color:var(--ftt-blue-deep);margin-bottom:16px;padding:20px;background:#F0F9FC;border-radius:12px">-</div>
       <button class="btn-submit" onclick="copyGroupCode()">Code kopieren</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="modal-overlay" id="shareModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Fortschritt teilen</div>
+      <button class="modal-close" onclick="closeModal('shareModal')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="share-preview" id="sharePreview">
+        <canvas id="shareCanvas" width="600" height="400"></canvas>
+      </div>
+      <button class="btn-submit orange" onclick="shareImage()">Bild teilen</button>
+      <button class="btn-outline" onclick="downloadShareImage()" style="margin-top:8px">Bild speichern</button>
     </div>
   </div>
 </div>
@@ -2113,6 +2304,11 @@ function updateDashboard() {
     hero.style.background = '';
     hero.style.boxShadow = '';
   }
+
+  // Update new features
+  updateDailyCost();
+  updateStreak();
+  updateDiscover();
 }
 
 // ========== MODALS ==========
@@ -2170,7 +2366,7 @@ function closeModal(id) {
 }
 
 // Click outside modals to close
-['addModal', 'settingsModal', 'authModal', 'createGroupModal', 'joinGroupModal', 'codeResultModal', 'editNameModal'].forEach(id => {
+['addModal', 'settingsModal', 'authModal', 'createGroupModal', 'joinGroupModal', 'codeResultModal', 'editNameModal', 'shareModal'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target === this) closeModal(id);
   });
@@ -2406,6 +2602,284 @@ document.getElementById('lbGroups').addEventListener('click', function(e) {
     leaveGroup(id);
   }
 });
+
+// ========== DAILY COST TICKER ==========
+function updateDailyCost() {
+  const card = document.getElementById('dailyCostCard');
+  if (state.activities.length === 0) { card.style.display = 'none'; return; }
+
+  const ticket = ticketTypes.find(t => t.id === state.ticketType) || ticketTypes[0];
+  const total = state.activities.reduce((s, a) => s + a.price, 0);
+
+  // Count unique days with activities
+  const uniqueDays = new Set(state.activities.map(a => a.date)).size;
+
+  // Season: Oct 1 to Sep 30
+  const now = new Date();
+  const seasonStart = new Date(now.getFullYear(), 9, 1); // Oct 1
+  if (now < seasonStart) seasonStart.setFullYear(seasonStart.getFullYear() - 1);
+  const daysSinceStart = Math.max(1, Math.ceil((now - seasonStart) / 86400000));
+
+  const costPerDay = ticket.price / daysSinceStart;
+  const saved = total - ticket.price;
+
+  card.style.display = 'flex';
+  document.getElementById('dailyCostValue').textContent = `\u20AC${costPerDay.toFixed(2)}`;
+  document.getElementById('dailyCostDays').textContent = `${uniqueDays} Tage aktiv`;
+
+  if (saved > 0) {
+    document.getElementById('dailyCostSaved').textContent = `+\u20AC${saved.toFixed(0)} gespart!`;
+    document.getElementById('dailyCostSaved').style.color = 'var(--ftt-success)';
+  } else {
+    document.getElementById('dailyCostSaved').textContent = `noch \u20AC${Math.abs(saved).toFixed(0)} bis amortisiert`;
+    document.getElementById('dailyCostSaved').style.color = 'var(--ftt-text-light)';
+  }
+}
+
+// ========== STREAK ==========
+function updateStreak() {
+  const badge = document.getElementById('streakBadge');
+  if (state.activities.length === 0) { badge.style.display = 'none'; return; }
+
+  // Group activities by ISO week
+  const weekSet = new Set();
+  state.activities.forEach(a => {
+    const d = new Date(a.date);
+    const jan1 = new Date(d.getFullYear(), 0, 1);
+    const weekNum = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+    weekSet.add(`${d.getFullYear()}-W${weekNum}`);
+  });
+
+  // Get current week and count backwards
+  const now = new Date();
+  let streak = 0;
+  let checkDate = new Date(now);
+
+  for (let i = 0; i < 52; i++) {
+    const jan1 = new Date(checkDate.getFullYear(), 0, 1);
+    const weekNum = Math.ceil(((checkDate - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+    const key = `${checkDate.getFullYear()}-W${weekNum}`;
+
+    if (weekSet.has(key)) {
+      streak++;
+      checkDate.setDate(checkDate.getDate() - 7);
+    } else if (i === 0) {
+      // Current week might not have activity yet, check previous
+      checkDate.setDate(checkDate.getDate() - 7);
+      continue;
+    } else {
+      break;
+    }
+  }
+
+  if (streak > 0) {
+    badge.style.display = 'inline-flex';
+    document.getElementById('streakCount').textContent = streak;
+    document.getElementById('streakIcon').textContent = streak >= 4 ? '\uD83D\uDD25' : '\u2744\uFE0F';
+    badge.className = 'streak-badge' + (streak < 2 ? ' cold' : '');
+    const label = streak === 1 ? 'Woche' : 'Wochen';
+    badge.innerHTML = `<span>${streak >= 4 ? '\uD83D\uDD25' : streak >= 2 ? '\u2B50' : '\u2744\uFE0F'}</span> ${streak} ${label}`;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ========== DISCOVER TIROL ==========
+let discoverShowAll = false;
+
+function updateDiscover() {
+  const section = document.getElementById('discoverSection');
+  const list = document.getElementById('discoverList');
+
+  // Get venues not visited (exclude limited ones that are maxed)
+  const visitedIds = new Set(state.activities.map(a => a.venueId));
+  const unvisited = venues.filter(v => {
+    if (visitedIds.has(v.id)) return false;
+    return true;
+  }).sort((a, b) => b.price - a.price);
+
+  if (unvisited.length === 0 || state.activities.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+
+  const catIcons = { ski: '\u26F7\uFE0F', swim: '\uD83C\uDFCA', cable: '\uD83D\uDEA1', sled: '\uD83D\uDEF7', skate: '\u26F8\uFE0F', museum: '\uD83C\uDFDB\uFE0F' };
+  const catNames = { ski: 'Skifahren', swim: 'Schwimmen', cable: 'Bergbahnen', sled: 'Rodeln', skate: 'Eislaufen', museum: 'Kultur' };
+
+  const shown = discoverShowAll ? unvisited : unvisited.slice(0, 5);
+
+  list.innerHTML = shown.map(v => {
+    const catIcon = catIcons[v.category] || '';
+    const catName = catNames[v.category] || '';
+    return `<div class="discover-card" onclick="quickAddDiscover('${esc(v.id)}')">
+      <div class="discover-icon">${v.icon}</div>
+      <div class="discover-info">
+        <div class="discover-name">${esc(v.name)}</div>
+        <div class="discover-meta">${catName}${v.limited ? ' \u00B7 max ' + v.limited + 'x' : ''}</div>
+      </div>
+      <div class="discover-value">\u20AC${v.price.toFixed(0)}</div>
+    </div>`;
+  }).join('');
+
+  const toggle = document.getElementById('discoverToggle');
+  if (unvisited.length > 5) {
+    toggle.style.display = 'inline';
+    toggle.textContent = discoverShowAll ? 'Weniger' : `Alle ${unvisited.length} zeigen`;
+  } else {
+    toggle.style.display = 'none';
+  }
+}
+
+function toggleDiscover() {
+  discoverShowAll = !discoverShowAll;
+  updateDiscover();
+}
+
+function quickAddDiscover(venueId) {
+  // Pre-select this venue in the add modal
+  state.selectedVenueId = venueId;
+  const venue = venues.find(v => v.id === venueId);
+  if (!venue) return;
+
+  document.getElementById('categorySelect').value = venue.category;
+  document.getElementById('venueSearch').value = '';
+  document.getElementById('activityDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('valuePreview').classList.add('show');
+  document.getElementById('valuePreviewAmount').textContent = `\u20AC${venue.price.toFixed(2)}`;
+  document.getElementById('submitBtn').disabled = false;
+  renderVenues();
+  document.getElementById('addModal').classList.add('active');
+}
+
+// ========== SHARE CARD ==========
+function openShareModal() {
+  document.getElementById('shareModal').classList.add('active');
+  renderShareCard();
+}
+
+function renderShareCard() {
+  const canvas = document.getElementById('shareCanvas');
+  const ctx = canvas.getContext('2d');
+  const w = 600, h = 400;
+  canvas.width = w;
+  canvas.height = h;
+
+  const ticket = ticketTypes.find(t => t.id === state.ticketType) || ticketTypes[0];
+  const total = state.activities.reduce((s, a) => s + a.price, 0);
+  const pct = Math.min(Math.round((total / ticket.price) * 100), 100);
+  const count = state.activities.length;
+  const name = currentUser ? currentUser.displayName : 'Anonym';
+
+  // Background gradient
+  const grad = ctx.createLinearGradient(0, 0, w, h);
+  grad.addColorStop(0, '#3EAACC');
+  grad.addColorStop(1, '#1B7A9A');
+  ctx.fillStyle = grad;
+  ctx.roundRect(0, 0, w, h, 20);
+  ctx.fill();
+
+  // Decorative circles
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  ctx.beginPath(); ctx.arc(w - 60, 60, 120, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(60, h - 40, 80, 0, Math.PI * 2); ctx.fill();
+
+  // Title
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.font = '600 11px Montserrat, sans-serif';
+  ctx.letterSpacing = '2px';
+  ctx.fillText('FREIZEITTICKET TIROL', 40, 48);
+
+  // Name
+  ctx.fillStyle = 'white';
+  ctx.font = '700 16px Montserrat, sans-serif';
+  ctx.fillText(name, 40, 76);
+
+  // Big value
+  ctx.font = '900 72px Montserrat, sans-serif';
+  ctx.fillText(`\u20AC${total.toFixed(0)}`, 40, 180);
+
+  // Subtitle
+  ctx.font = '600 16px Montserrat, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.fillText(`von \u20AC${ticket.price} ausgenutzt`, 40, 210);
+
+  // Progress bar bg
+  const barX = 40, barY = 235, barW = w - 80, barH = 14;
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.beginPath(); ctx.roundRect(barX, barY, barW, barH, 7); ctx.fill();
+
+  // Progress bar fill
+  ctx.fillStyle = pct >= 100 ? '#27AE60' : 'white';
+  const fillW = Math.max(barW * (pct / 100), 10);
+  ctx.beginPath(); ctx.roundRect(barX, barY, fillW, barH, 7); ctx.fill();
+
+  // Stats row
+  ctx.fillStyle = 'white';
+  ctx.font = '800 28px Montserrat, sans-serif';
+  ctx.fillText(`${pct}%`, 40, 300);
+  ctx.fillText(`${count}`, 200, 300);
+
+  // Unique venues
+  const uniqueVenues = new Set(state.activities.map(a => a.venueId)).size;
+  ctx.fillText(`${uniqueVenues}`, 360, 300);
+
+  ctx.font = '600 10px Montserrat, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.fillText('AUSGENUTZT', 40, 318);
+  ctx.fillText('AKTIVIT\u00C4TEN', 200, 318);
+  ctx.fillText('ORTE', 360, 318);
+
+  // Footer
+  ctx.font = '600 11px Montserrat, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fillText('hast-du-schon-ausgenutzt.vercel.app', 40, h - 24);
+
+  // Orange badge
+  if (pct >= 100) {
+    ctx.fillStyle = '#27AE60';
+    ctx.beginPath(); ctx.roundRect(w - 180, h - 50, 140, 30, 8); ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.font = '700 12px Montserrat, sans-serif';
+    ctx.fillText('VOLL AUSGENUTZT!', w - 170, h - 30);
+  } else {
+    ctx.fillStyle = '#E8871E';
+    ctx.beginPath(); ctx.roundRect(w - 180, h - 50, 140, 30, 8); ctx.fill();
+    ctx.fillStyle = 'white';
+    ctx.font = '700 12px Montserrat, sans-serif';
+    ctx.fillText(`Noch \u20AC${(ticket.price - total).toFixed(0)} offen`, w - 168, h - 30);
+  }
+}
+
+async function shareImage() {
+  const canvas = document.getElementById('shareCanvas');
+  try {
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    const file = new File([blob], 'freizeitticket-stats.png', { type: 'image/png' });
+
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: 'Mein Freizeitticket Fortschritt',
+        text: 'Schau wie viel ich aus meinem Freizeitticket rausgeholt habe!',
+      });
+    } else {
+      downloadShareImage();
+    }
+  } catch(e) {
+    if (e.name !== 'AbortError') downloadShareImage();
+  }
+}
+
+function downloadShareImage() {
+  const canvas = document.getElementById('shareCanvas');
+  const link = document.createElement('a');
+  link.download = 'freizeitticket-stats.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  showToast('Bild gespeichert!');
+}
 
 // ========== TOAST ==========
 function showToast(msg) {
