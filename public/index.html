@@ -1671,6 +1671,17 @@
 
       <!-- Story mode -->
       <div id="shareStoryMode" style="display:none">
+        <!-- Format selector -->
+        <div style="margin-bottom:14px">
+          <label class="form-label">Format</label>
+          <div style="display:flex;gap:6px">
+            <button class="share-fmt-btn active" data-fmt="story" onclick="setShareFormat('story')" style="flex:1;padding:10px 6px;border:2px solid var(--ftt-blue);background:#EBF5FF;border-radius:8px;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;color:var(--ftt-blue-deep);text-align:center">&#128241;<br>Story<br><span style="font-size:9px;font-weight:500;opacity:0.7">9:16</span></button>
+            <button class="share-fmt-btn" data-fmt="reel" onclick="setShareFormat('reel')" style="flex:1;padding:10px 6px;border:2px solid #E8ECF0;background:white;border-radius:8px;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;color:var(--ftt-text);text-align:center">&#127910;<br>Reel<br><span style="font-size:9px;font-weight:500;opacity:0.7">9:16</span></button>
+            <button class="share-fmt-btn" data-fmt="post" onclick="setShareFormat('post')" style="flex:1;padding:10px 6px;border:2px solid #E8ECF0;background:white;border-radius:8px;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;color:var(--ftt-text);text-align:center">&#128444;&#65039;<br>Post<br><span style="font-size:9px;font-weight:500;opacity:0.7">1:1</span></button>
+            <button class="share-fmt-btn" data-fmt="message" onclick="setShareFormat('message')" style="flex:1;padding:10px 6px;border:2px solid #E8ECF0;background:white;border-radius:8px;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;color:var(--ftt-text);text-align:center">&#128172;<br>Chat<br><span style="font-size:9px;font-weight:500;opacity:0.7">3:2</span></button>
+          </div>
+        </div>
+
         <div id="storyPhotoArea" style="border:2px dashed #E8ECF0;border-radius:12px;padding:32px;text-align:center;cursor:pointer;margin-bottom:16px;transition:border-color 0.2s" onclick="document.getElementById('storyPhotoInput').click()">
           <div style="font-size:36px;margin-bottom:8px">&#128247;</div>
           <div style="font-size:13px;font-weight:700;color:var(--ftt-text)">Foto ausw&auml;hlen</div>
@@ -1680,13 +1691,16 @@
         <div class="share-preview" id="storyPreview" style="display:none">
           <canvas id="storyCanvas" width="1080" height="1920"></canvas>
         </div>
-        <div id="stickerPositionRow" style="display:none;margin-bottom:16px">
-          <label class="form-label">Sticker Position</label>
-          <div style="display:flex;gap:6px">
-            <button class="sticker-pos-btn active" data-pos="bottom" onclick="setStickerPos('bottom')" style="flex:1;padding:8px;border:2px solid var(--ftt-blue);background:#EBF5FF;border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--ftt-blue-deep)">Unten</button>
-            <button class="sticker-pos-btn" data-pos="top" onclick="setStickerPos('top')" style="flex:1;padding:8px;border:2px solid #E8ECF0;background:white;border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--ftt-text)">Oben</button>
-            <button class="sticker-pos-btn" data-pos="center" onclick="setStickerPos('center')" style="flex:1;padding:8px;border:2px solid #E8ECF0;background:white;border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--ftt-text)">Mitte</button>
+        <div id="storyControls" style="display:none">
+          <div style="margin-bottom:14px">
+            <label class="form-label">Sticker Position</label>
+            <div style="display:flex;gap:6px">
+              <button class="sticker-pos-btn active" data-pos="bottom" onclick="setStickerPos('bottom')" style="flex:1;padding:8px;border:2px solid var(--ftt-blue);background:#EBF5FF;border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--ftt-blue-deep)">Unten</button>
+              <button class="sticker-pos-btn" data-pos="top" onclick="setStickerPos('top')" style="flex:1;padding:8px;border:2px solid #E8ECF0;background:white;border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--ftt-text)">Oben</button>
+              <button class="sticker-pos-btn" data-pos="center" onclick="setStickerPos('center')" style="flex:1;padding:8px;border:2px solid #E8ECF0;background:white;border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--ftt-text)">Mitte</button>
+            </div>
           </div>
+          <button class="btn-outline" onclick="changeStoryPhoto()" style="margin-top:0;margin-bottom:14px;font-size:12px;padding:10px">&#128247; Anderes Foto</button>
         </div>
       </div>
 
@@ -2789,6 +2803,14 @@ function quickAddDiscover(venueId) {
 let shareMode = 'card';
 let storyPhoto = null;
 let stickerPos = 'bottom';
+let shareFormat = 'story';
+
+const SHARE_FORMATS = {
+  story:   { w: 1080, h: 1920, label: 'Story' },
+  reel:    { w: 1080, h: 1920, label: 'Reel' },
+  post:    { w: 1080, h: 1080, label: 'Post' },
+  message: { w: 1200, h: 800,  label: 'Chat' },
+};
 
 function openShareModal() {
   shareMode = 'card';
@@ -2807,6 +2829,17 @@ function switchShareMode(mode) {
   if (mode === 'card') renderShareCard();
 }
 
+function setShareFormat(fmt) {
+  shareFormat = fmt;
+  document.querySelectorAll('.share-fmt-btn').forEach(b => {
+    const active = b.dataset.fmt === fmt;
+    b.style.borderColor = active ? 'var(--ftt-blue)' : '#E8ECF0';
+    b.style.background = active ? '#EBF5FF' : 'white';
+    b.style.color = active ? 'var(--ftt-blue-deep)' : 'var(--ftt-text)';
+  });
+  if (storyPhoto) renderStoryCanvas();
+}
+
 function setStickerPos(pos) {
   stickerPos = pos;
   document.querySelectorAll('.sticker-pos-btn').forEach(b => {
@@ -2816,6 +2849,11 @@ function setStickerPos(pos) {
     b.style.color = active ? 'var(--ftt-blue-deep)' : 'var(--ftt-text)';
   });
   if (storyPhoto) renderStoryCanvas();
+}
+
+function changeStoryPhoto() {
+  document.getElementById('storyPhotoInput').value = '';
+  document.getElementById('storyPhotoInput').click();
 }
 
 function handleStoryPhoto(e) {
@@ -2829,7 +2867,7 @@ function handleStoryPhoto(e) {
       storyPhoto = img;
       document.getElementById('storyPhotoArea').style.display = 'none';
       document.getElementById('storyPreview').style.display = 'block';
-      document.getElementById('stickerPositionRow').style.display = 'block';
+      document.getElementById('storyControls').style.display = 'block';
       renderStoryCanvas();
     };
     img.src = ev.target.result;
@@ -2840,7 +2878,8 @@ function handleStoryPhoto(e) {
 function renderStoryCanvas() {
   const canvas = document.getElementById('storyCanvas');
   const ctx = canvas.getContext('2d');
-  const w = 1080, h = 1920;
+  const fmt = SHARE_FORMATS[shareFormat] || SHARE_FORMATS.story;
+  const w = fmt.w, h = fmt.h;
   canvas.width = w;
   canvas.height = h;
 
@@ -2881,72 +2920,111 @@ function drawSticker(ctx, canvasW, canvasH) {
   const count = state.activities.length;
   const uniqueVenues = new Set(state.activities.map(a => a.venueId)).size;
 
-  // Sticker dimensions
-  const sW = canvasW - 80;
-  const sH = 380;
-  const sX = 40;
-  let sY;
-  if (stickerPos === 'top') sY = 120;
-  else if (stickerPos === 'center') sY = (canvasH - sH) / 2;
-  else sY = canvasH - sH - 120;
+  // Scale factor based on canvas size (base: 1080 wide)
+  const scale = canvasW / 1080;
+  const isCompact = canvasH / canvasW < 1.2; // post or message format
 
-  // Sticker background with blur effect
+  // Sticker dimensions
+  const margin = 40 * scale;
+  const sW = canvasW - margin * 2;
+  const sH = isCompact ? 280 * scale : 380 * scale;
+  const sX = margin;
+  let sY;
+  if (stickerPos === 'top') sY = (isCompact ? 40 : 120) * scale;
+  else if (stickerPos === 'center') sY = (canvasH - sH) / 2;
+  else sY = canvasH - sH - (isCompact ? 40 : 120) * scale;
+
+  // Sticker background
   ctx.save();
   ctx.fillStyle = 'rgba(0,0,0,0.45)';
-  ctx.beginPath(); ctx.roundRect(sX, sY, sW, sH, 28); ctx.fill();
-
-  // Glass effect border
+  ctx.beginPath(); ctx.roundRect(sX, sY, sW, sH, 28 * scale); ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.roundRect(sX, sY, sW, sH, 28); ctx.stroke();
+  ctx.lineWidth = 1.5 * scale;
+  ctx.beginPath(); ctx.roundRect(sX, sY, sW, sH, 28 * scale); ctx.stroke();
   ctx.restore();
 
-  const pad = 36;
+  const pad = (isCompact ? 24 : 36) * scale;
   const x = sX + pad;
   const y = sY + pad;
   const innerW = sW - pad * 2;
 
-  // Title line
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.font = '700 22px Montserrat, sans-serif';
-  ctx.fillText('FREIZEITTICKET TIROL', x, y + 20);
+  if (isCompact) {
+    // Compact layout for post/message: title + value on one row, stats below
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = `700 ${16 * scale}px Montserrat, sans-serif`;
+    ctx.fillText('FREIZEITTICKET TIROL', x, y + 16 * scale);
 
-  // Big value
-  ctx.fillStyle = 'white';
-  ctx.font = '900 80px Montserrat, sans-serif';
-  ctx.fillText(`\u20AC${total.toFixed(0)}`, x, y + 115);
+    ctx.fillStyle = 'white';
+    ctx.font = `900 ${56 * scale}px Montserrat, sans-serif`;
+    ctx.fillText(`\u20AC${total.toFixed(0)}`, x, y + 80 * scale);
 
-  // Subtitle
-  ctx.font = '600 24px Montserrat, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.8)';
-  ctx.fillText(`von \u20AC${ticket.price} ausgenutzt`, x, y + 150);
+    ctx.font = `600 ${18 * scale}px Montserrat, sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillText(`von \u20AC${ticket.price} ausgenutzt`, x, y + 108 * scale);
 
-  // Progress bar
-  const barY = y + 175;
-  const barH = 16;
-  ctx.fillStyle = 'rgba(255,255,255,0.25)';
-  ctx.beginPath(); ctx.roundRect(x, barY, innerW, barH, 8); ctx.fill();
-  ctx.fillStyle = pct >= 100 ? '#27AE60' : 'white';
-  ctx.beginPath(); ctx.roundRect(x, barY, Math.max(innerW * pct / 100, 12), barH, 8); ctx.fill();
+    // Progress bar
+    const bY = y + 125 * scale;
+    const bH = 12 * scale;
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.beginPath(); ctx.roundRect(x, bY, innerW, bH, 6 * scale); ctx.fill();
+    ctx.fillStyle = pct >= 100 ? '#27AE60' : 'white';
+    ctx.beginPath(); ctx.roundRect(x, bY, Math.max(innerW * pct / 100, 10 * scale), bH, 6 * scale); ctx.fill();
 
-  // Stats
-  const statsY = barY + 55;
-  ctx.fillStyle = 'white';
-  ctx.font = '800 36px Montserrat, sans-serif';
-  ctx.fillText(`${pct}%`, x, statsY);
-  ctx.fillText(`${count}`, x + innerW * 0.35, statsY);
-  ctx.fillText(`${uniqueVenues}`, x + innerW * 0.7, statsY);
+    // Stats row
+    const stsY = bY + 42 * scale;
+    ctx.fillStyle = 'white';
+    ctx.font = `800 ${28 * scale}px Montserrat, sans-serif`;
+    ctx.fillText(`${pct}%`, x, stsY);
+    ctx.fillText(`${count}`, x + innerW * 0.35, stsY);
+    ctx.fillText(`${uniqueVenues}`, x + innerW * 0.7, stsY);
 
-  ctx.font = '600 16px Montserrat, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.fillText('AUSGENUTZT', x, statsY + 24);
-  ctx.fillText('AKTIVIT\u00C4TEN', x + innerW * 0.35, statsY + 24);
-  ctx.fillText('ORTE', x + innerW * 0.7, statsY + 24);
+    ctx.font = `600 ${12 * scale}px Montserrat, sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillText('AUSGENUTZT', x, stsY + 18 * scale);
+    ctx.fillText('AKTIVIT\u00C4TEN', x + innerW * 0.35, stsY + 18 * scale);
+    ctx.fillText('ORTE', x + innerW * 0.7, stsY + 18 * scale);
 
-  // Footer URL
-  ctx.font = '600 18px Montserrat, sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.4)';
-  ctx.fillText('hast-du-schon-ausgenutzt.vercel.app', x, sY + sH - pad + 5);
+    ctx.font = `600 ${13 * scale}px Montserrat, sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.fillText('hast-du-schon-ausgenutzt.vercel.app', x, sY + sH - pad + 4 * scale);
+  } else {
+    // Full layout for story/reel
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = `700 ${22 * scale}px Montserrat, sans-serif`;
+    ctx.fillText('FREIZEITTICKET TIROL', x, y + 20 * scale);
+
+    ctx.fillStyle = 'white';
+    ctx.font = `900 ${80 * scale}px Montserrat, sans-serif`;
+    ctx.fillText(`\u20AC${total.toFixed(0)}`, x, y + 115 * scale);
+
+    ctx.font = `600 ${24 * scale}px Montserrat, sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillText(`von \u20AC${ticket.price} ausgenutzt`, x, y + 150 * scale);
+
+    const bY = y + 175 * scale;
+    const bH = 16 * scale;
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.beginPath(); ctx.roundRect(x, bY, innerW, bH, 8 * scale); ctx.fill();
+    ctx.fillStyle = pct >= 100 ? '#27AE60' : 'white';
+    ctx.beginPath(); ctx.roundRect(x, bY, Math.max(innerW * pct / 100, 12 * scale), bH, 8 * scale); ctx.fill();
+
+    const stsY = bY + 55 * scale;
+    ctx.fillStyle = 'white';
+    ctx.font = `800 ${36 * scale}px Montserrat, sans-serif`;
+    ctx.fillText(`${pct}%`, x, stsY);
+    ctx.fillText(`${count}`, x + innerW * 0.35, stsY);
+    ctx.fillText(`${uniqueVenues}`, x + innerW * 0.7, stsY);
+
+    ctx.font = `600 ${16 * scale}px Montserrat, sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillText('AUSGENUTZT', x, stsY + 24 * scale);
+    ctx.fillText('AKTIVIT\u00C4TEN', x + innerW * 0.35, stsY + 24 * scale);
+    ctx.fillText('ORTE', x + innerW * 0.7, stsY + 24 * scale);
+
+    ctx.font = `600 ${18 * scale}px Montserrat, sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.fillText('hast-du-schon-ausgenutzt.vercel.app', x, sY + sH - pad + 5 * scale);
+  }
 }
 
 function renderShareCard() {
