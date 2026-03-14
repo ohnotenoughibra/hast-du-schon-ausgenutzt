@@ -143,11 +143,17 @@ module.exports = async function handler(req, res) {
       `;
 
       // Send email
-      await sendResetEmail(user.email, code);
+      try {
+        await sendResetEmail(user.email, code);
+      } catch (emailErr) {
+        console.error('Reset email failed:', emailErr.message);
+        // Code is still in DB — admin can look up in logs
+        console.log(`RESET CODE for ${user.email}: ${code}`);
+        return res.status(500).json({ error: 'Email konnte nicht gesendet werden. Bitte verifiziere eine Domain in resend.com oder kontaktiere den Administrator.' });
+      }
 
       return res.status(200).json({ ok: true });
     } catch (e) {
-      // If email sending fails, still don't leak info
       if (e.message.includes('nicht konfiguriert')) {
         return res.status(500).json({ error: 'Email-Versand nicht konfiguriert. Kontaktiere den Administrator.' });
       }
