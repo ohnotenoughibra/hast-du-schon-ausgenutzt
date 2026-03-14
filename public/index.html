@@ -849,10 +849,208 @@
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ========== RESPONSIVE ========== */
+  /* ========== DESKTOP SIDEBAR NAV ========== */
+  .sidebar {
+    display: none;
+  }
+
+  /* ========== RESPONSIVE: TABLET (600-899px) ========== */
   @media (min-width: 600px) {
-    .app { padding: 24px 20px 100px; }
+    .header-inner { max-width: 700px; }
+    .app { max-width: 700px; padding: 24px 24px 100px; }
+    .bottom-nav-inner { max-width: 700px; }
     .hero-value { font-size: 64px; }
+    .hero-card { padding: 32px 28px; }
+
+    .breakdown-row { flex-wrap: wrap; overflow-x: visible; }
+    .chip { flex: 1; min-width: 100px; }
+
+    .modal { border-radius: 20px; max-width: 520px; margin: auto; }
+    .modal-overlay { align-items: center; padding: 24px; }
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  }
+
+  /* ========== RESPONSIVE: DESKTOP (900px+) ========== */
+  @media (min-width: 900px) {
+    .header-inner {
+      max-width: 1200px;
+      padding: 16px 32px;
+    }
+
+    .bottom-nav { display: none; }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 220px;
+      background: white;
+      border-right: 1px solid #E8ECF0;
+      z-index: 101;
+      padding-top: 80px;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 16px 12px;
+    }
+
+    .sidebar-tab {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border: none;
+      background: none;
+      color: var(--ftt-text-light);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .sidebar-tab:hover { background: #F4F7FA; color: var(--ftt-text); }
+    .sidebar-tab.active { background: #EBF5FF; color: var(--ftt-blue-deep); }
+    .sidebar-tab-icon { font-size: 20px; width: 28px; text-align: center; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px;
+      border-top: 1px solid #F0F2F5;
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .sidebar-user:hover { background: #F4F7FA; }
+
+    .sidebar-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--ftt-blue), var(--ftt-blue-deep));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-user-name {
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-user-email {
+      font-size: 10px;
+      color: var(--ftt-text-light);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header { position: sticky; z-index: 102; }
+
+    .app {
+      max-width: 800px;
+      margin-left: 220px;
+      margin-right: auto;
+      padding: 32px 40px 60px;
+    }
+
+    .fab {
+      bottom: 32px;
+      left: calc(220px + 50%);
+      transform: translateX(-50%);
+    }
+
+    .fab:hover {
+      transform: translateX(-50%) translateY(-2px);
+    }
+
+    .fab:active { transform: translateX(-50%) scale(0.96); }
+
+    .toast { bottom: 40px; }
+
+    .hero-card { padding: 36px 32px; }
+    .hero-value { font-size: 72px; }
+    .hero-of { font-size: 18px; }
+    .hero-stat-value { font-size: 24px; }
+
+    .breakdown-row { flex-wrap: wrap; overflow-x: visible; gap: 12px; }
+    .chip { flex: 1; min-width: 110px; padding: 16px 20px; }
+    .chip-value { font-size: 20px; }
+
+    .activity-item { padding: 18px 20px; gap: 16px; }
+    .activity-icon-wrap { width: 48px; height: 48px; font-size: 24px; }
+    .activity-name { font-size: 15px; }
+    .activity-value-amount { font-size: 18px; }
+
+    .section-title { font-size: 18px; }
+
+    .lb-group-card { padding: 24px; }
+    .lb-entry { padding: 14px 0; gap: 16px; }
+    .lb-entry.me { padding: 14px 24px; margin: 0 -24px; }
+    .lb-rank { width: 36px; height: 36px; font-size: 15px; }
+    .lb-name { font-size: 15px; }
+    .lb-value { font-size: 18px; }
+
+    .auth-banner { padding: 28px; }
+    .auth-banner-title { font-size: 17px; }
+    .auth-banner-text { font-size: 13px; }
+  }
+
+  /* ========== RESPONSIVE: WIDE DESKTOP (1200px+) ========== */
+  @media (min-width: 1200px) {
+    .app {
+      max-width: 900px;
+      padding: 40px 48px 60px;
+    }
+
+    /* Two-column layout for tracker view */
+    .tracker-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .tracker-left { grid-column: 1; }
+    .tracker-right { grid-column: 2; }
+
+    .hero-card { margin-bottom: 0; }
+
+    .breakdown-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 0;
+    }
+
+    .chip { min-width: 0; }
   }
 
   /* ========== CONFETTI ========== */
@@ -918,6 +1116,30 @@
   </div>
 </div>
 
+<!-- SIDEBAR (desktop only, shown via CSS) -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-nav">
+    <button class="sidebar-tab active" data-view="viewTracker" onclick="switchView('viewTracker')">
+      <span class="sidebar-tab-icon">&#127968;</span> Tracker
+    </button>
+    <button class="sidebar-tab" data-view="viewLeaderboard" onclick="switchView('viewLeaderboard')">
+      <span class="sidebar-tab-icon">&#127942;</span> Rangliste
+    </button>
+    <button class="sidebar-tab" data-view="viewProfile" onclick="switchView('viewProfile')">
+      <span class="sidebar-tab-icon">&#128100;</span> Profil
+    </button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-user" id="sidebarUser" onclick="openAuthModal()">
+      <div class="sidebar-avatar" id="sidebarAvatar">?</div>
+      <div>
+        <div class="sidebar-user-name" id="sidebarUserName">Anmelden</div>
+        <div class="sidebar-user-email" id="sidebarUserEmail"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- APP CONTENT -->
 <div class="app">
 
@@ -930,6 +1152,8 @@
       <button class="auth-banner-btn" onclick="openAuthModal()">Konto erstellen</button>
     </div>
 
+    <div class="tracker-grid">
+    <div class="tracker-left">
     <!-- HERO -->
     <div class="hero-card">
       <div class="hero-question">Dein Ticketwert</div>
@@ -964,6 +1188,8 @@
       <div class="chip"><div class="chip-icon">&#127963;&#65039;</div><div class="chip-value" id="chipMuseum">&euro;0</div><div class="chip-label">Kultur</div></div>
     </div>
 
+    </div><!-- /tracker-left -->
+    <div class="tracker-right">
     <!-- ACTIVITY LOG -->
     <div class="section-header">
       <div class="section-title">Letzte Aktivit&auml;ten</div>
@@ -987,6 +1213,8 @@
         <div class="empty-state-sub">Tippe + um deine erste Aktivit&auml;t hinzuzuf&uuml;gen</div>
       </div>
     </div>
+    </div><!-- /tracker-right -->
+    </div><!-- /tracker-grid -->
   </div>
 
   <!-- ===== LEADERBOARD VIEW ===== -->
@@ -1490,6 +1718,12 @@ function updateAuthUI() {
     document.getElementById('profileName').textContent = currentUser.displayName;
     document.getElementById('profileEmail').textContent = currentUser.email;
 
+    // Update sidebar
+    document.getElementById('sidebarAvatar').textContent = currentUser.displayName.charAt(0).toUpperCase();
+    document.getElementById('sidebarUserName').textContent = currentUser.displayName;
+    document.getElementById('sidebarUserEmail').textContent = currentUser.email;
+    document.getElementById('sidebarUser').onclick = () => switchView('viewProfile');
+
     loadMyGroups();
   } else {
     btn.textContent = 'Anmelden';
@@ -1501,6 +1735,12 @@ function updateAuthUI() {
     document.getElementById('lbGroupActions').style.display = 'none';
     profileNotLoggedIn.style.display = 'block';
     profileLoggedIn.style.display = 'none';
+
+    // Reset sidebar
+    document.getElementById('sidebarAvatar').textContent = '?';
+    document.getElementById('sidebarUserName').textContent = 'Anmelden';
+    document.getElementById('sidebarUserEmail').textContent = '';
+    document.getElementById('sidebarUser').onclick = openAuthModal;
   }
 }
 
@@ -1508,8 +1748,11 @@ function updateAuthUI() {
 function switchView(viewId) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(viewId).classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`[data-view="${viewId}"]`).classList.add('active');
+
+  // Update both bottom nav and sidebar tabs
+  document.querySelectorAll('.nav-tab, .sidebar-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.view === viewId);
+  });
 
   const fab = document.getElementById('fab');
   fab.style.display = viewId === 'viewTracker' ? 'flex' : 'none';

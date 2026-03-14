@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ftt-tracker-v4';
+const CACHE_NAME = 'ftt-tracker-v5';
 const ASSETS = [
   '/',
   '/index.html',
