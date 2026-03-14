@@ -1451,6 +1451,7 @@
           <div style="font-size:12px;color:var(--ftt-text-light);font-weight:500" id="profileEmail">-</div>
         </div>
         <button class="btn-outline" onclick="openEditNameModal()" style="margin-top:0;font-size:13px">Name bearbeiten</button>
+        <button class="btn-outline" onclick="openChangePasswordModal()" style="margin-top:8px;font-size:13px">Passwort &auml;ndern</button>
       </div>
 
       <button class="btn-danger-outline" onclick="handleLogout()">Abmelden</button>
@@ -1573,6 +1574,49 @@
           <input type="password" class="form-input" id="loginPassword" placeholder="Passwort">
         </div>
         <button class="btn-submit" onclick="handleLogin()" id="loginBtn">Anmelden</button>
+        <div style="text-align:center;margin-top:12px">
+          <button onclick="showForgotPassword()" style="background:none;border:none;color:var(--ftt-blue);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;padding:4px">Passwort vergessen?</button>
+        </div>
+      </div>
+
+      <!-- Forgot password form -->
+      <div id="authForgotForm" style="display:none">
+        <div style="text-align:center;margin-bottom:16px">
+          <div style="font-size:36px;margin-bottom:8px">&#128274;</div>
+          <div style="font-size:13px;color:var(--ftt-text-light)">Gib deine E-Mail ein und wir senden dir einen 6-stelligen Code.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-Mail</label>
+          <input type="email" class="form-input" id="forgotEmail" placeholder="deine@email.at">
+        </div>
+        <button class="btn-submit" onclick="handleForgotPassword()" id="forgotBtn">Code senden</button>
+        <div style="text-align:center;margin-top:12px">
+          <button onclick="showLoginFromForgot()" style="background:none;border:none;color:var(--ftt-blue);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;padding:4px">Zur&uuml;ck zur Anmeldung</button>
+        </div>
+      </div>
+
+      <!-- Reset password form -->
+      <div id="authResetForm" style="display:none">
+        <div style="text-align:center;margin-bottom:16px">
+          <div style="font-size:36px;margin-bottom:8px">&#128272;</div>
+          <div style="font-size:13px;color:var(--ftt-text-light)">Code wurde an <strong id="resetEmailDisplay">-</strong> gesendet.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">6-stelliger Code</label>
+          <input type="text" class="form-input" id="resetCode" placeholder="123456" maxlength="6" inputmode="numeric" pattern="[0-9]*" style="text-align:center;font-size:24px;font-weight:800;letter-spacing:8px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Neues Passwort</label>
+          <input type="password" class="form-input" id="resetPassword" placeholder="Mind. 6 Zeichen">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Passwort best&auml;tigen</label>
+          <input type="password" class="form-input" id="resetPasswordConfirm" placeholder="Nochmal eingeben">
+        </div>
+        <button class="btn-submit" onclick="handleResetPassword()" id="resetBtn">Passwort &auml;ndern</button>
+        <div style="text-align:center;margin-top:12px">
+          <button onclick="handleForgotPassword()" style="background:none;border:none;color:var(--ftt-text-light);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;padding:4px">Code erneut senden</button>
+        </div>
       </div>
 
       <!-- Register form -->
@@ -1706,6 +1750,33 @@
 
       <button class="btn-submit orange" onclick="shareImage()">Bild teilen</button>
       <button class="btn-outline" onclick="downloadShareImage()" style="margin-top:8px">Bild speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal-overlay" id="changePasswordModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Passwort &auml;ndern</div>
+      <button class="modal-close" onclick="closeModal('changePasswordModal')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="auth-error" id="changePwError"></div>
+      <div class="form-group">
+        <label class="form-label">Aktuelles Passwort</label>
+        <input type="password" class="form-input" id="changePwOld" placeholder="Aktuelles Passwort">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Neues Passwort</label>
+        <input type="password" class="form-input" id="changePwNew" placeholder="Mind. 6 Zeichen">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Neues Passwort best&auml;tigen</label>
+        <input type="password" class="form-input" id="changePwConfirm" placeholder="Nochmal eingeben">
+      </div>
+      <button class="btn-submit" onclick="handleChangePassword()" id="changePwBtn">Passwort &auml;ndern</button>
     </div>
   </div>
 </div>
@@ -2131,6 +2202,132 @@ function showAuthError(msg) {
   el.classList.add('show');
 }
 
+// ========== FORGOT / RESET PASSWORD ==========
+let resetEmail = '';
+
+function showForgotPassword() {
+  document.getElementById('authError').classList.remove('show');
+  document.getElementById('authLoginForm').style.display = 'none';
+  document.getElementById('authRegisterForm').style.display = 'none';
+  document.getElementById('authForgotForm').style.display = 'block';
+  document.getElementById('authResetForm').style.display = 'none';
+  document.getElementById('authModalTitle').textContent = 'Passwort vergessen';
+  document.querySelector('.auth-tabs').style.display = 'none';
+  // Pre-fill email if already typed in login form
+  const loginEmail = document.getElementById('loginEmail').value.trim();
+  if (loginEmail) document.getElementById('forgotEmail').value = loginEmail;
+}
+
+function showLoginFromForgot() {
+  document.getElementById('authForgotForm').style.display = 'none';
+  document.getElementById('authResetForm').style.display = 'none';
+  document.getElementById('authLoginForm').style.display = 'block';
+  document.getElementById('authModalTitle').textContent = 'Anmelden';
+  document.querySelector('.auth-tabs').style.display = 'flex';
+  document.getElementById('authError').classList.remove('show');
+  switchAuthTab('login');
+}
+
+async function handleForgotPassword() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  if (!email) return showAuthError('Bitte E-Mail eingeben');
+
+  const btn = document.getElementById('forgotBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>Senden...';
+  document.getElementById('authError').classList.remove('show');
+
+  try {
+    await api('/api/auth?action=forgot', { method: 'POST', body: { email } });
+    resetEmail = email;
+
+    // Show reset form
+    document.getElementById('authForgotForm').style.display = 'none';
+    document.getElementById('authResetForm').style.display = 'block';
+    document.getElementById('authModalTitle').textContent = 'Code eingeben';
+    document.getElementById('resetEmailDisplay').textContent = email;
+    document.getElementById('resetCode').value = '';
+    document.getElementById('resetPassword').value = '';
+    document.getElementById('resetPasswordConfirm').value = '';
+    document.getElementById('resetCode').focus();
+    showToast('Code gesendet!');
+  } catch(e) {
+    showAuthError(e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Code senden';
+  }
+}
+
+async function handleResetPassword() {
+  const code = document.getElementById('resetCode').value.trim();
+  const password = document.getElementById('resetPassword').value;
+  const confirm = document.getElementById('resetPasswordConfirm').value;
+
+  if (!code || code.length !== 6) return showAuthError('Bitte 6-stelligen Code eingeben');
+  if (!password) return showAuthError('Bitte neues Passwort eingeben');
+  if (password.length < 6) return showAuthError('Passwort mind. 6 Zeichen');
+  if (password !== confirm) return showAuthError('Passw\u00F6rter stimmen nicht \u00FCberein');
+
+  const btn = document.getElementById('resetBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>\u00C4ndern...';
+  document.getElementById('authError').classList.remove('show');
+
+  try {
+    await api('/api/auth?action=reset', { method: 'POST', body: { email: resetEmail, code, password } });
+    showToast('Passwort ge\u00E4ndert! Melde dich an.');
+
+    // Go back to login with email pre-filled
+    document.getElementById('loginEmail').value = resetEmail;
+    document.getElementById('loginPassword').value = '';
+    showLoginFromForgot();
+  } catch(e) {
+    showAuthError(e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Passwort \u00E4ndern';
+  }
+}
+
+// ========== CHANGE PASSWORD ==========
+function openChangePasswordModal() {
+  document.getElementById('changePwOld').value = '';
+  document.getElementById('changePwNew').value = '';
+  document.getElementById('changePwConfirm').value = '';
+  document.getElementById('changePwError').classList.remove('show');
+  document.getElementById('changePasswordModal').classList.add('active');
+}
+
+async function handleChangePassword() {
+  const oldPw = document.getElementById('changePwOld').value;
+  const newPw = document.getElementById('changePwNew').value;
+  const confirmPw = document.getElementById('changePwConfirm').value;
+  const errEl = document.getElementById('changePwError');
+
+  errEl.classList.remove('show');
+
+  if (!oldPw || !newPw || !confirmPw) { errEl.textContent = 'Bitte alle Felder ausf\u00FCllen'; errEl.classList.add('show'); return; }
+  if (newPw.length < 6) { errEl.textContent = 'Neues Passwort mind. 6 Zeichen'; errEl.classList.add('show'); return; }
+  if (newPw !== confirmPw) { errEl.textContent = 'Passw\u00F6rter stimmen nicht \u00FCberein'; errEl.classList.add('show'); return; }
+
+  const btn = document.getElementById('changePwBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>\u00C4ndern...';
+
+  try {
+    await api('/api/auth?action=change-password', { method: 'POST', body: { oldPassword: oldPw, newPassword: newPw } });
+    closeModal('changePasswordModal');
+    showToast('Passwort ge\u00E4ndert!');
+  } catch(e) {
+    errEl.textContent = e.message;
+    errEl.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Passwort \u00E4ndern';
+  }
+}
+
 // ========== VENUE LIST ==========
 function filterVenues() { renderVenues(); }
 
@@ -2412,7 +2609,7 @@ function closeModal(id) {
 }
 
 // Click outside modals to close
-['addModal', 'settingsModal', 'authModal', 'createGroupModal', 'joinGroupModal', 'codeResultModal', 'editNameModal', 'shareModal'].forEach(id => {
+['addModal', 'settingsModal', 'authModal', 'createGroupModal', 'joinGroupModal', 'codeResultModal', 'editNameModal', 'shareModal', 'changePasswordModal'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target === this) closeModal(id);
   });
@@ -2720,11 +2917,10 @@ function updateStreak() {
 
   if (streak > 0) {
     badge.style.display = 'inline-flex';
-    document.getElementById('streakCount').textContent = streak;
-    document.getElementById('streakIcon').textContent = streak >= 4 ? '\uD83D\uDD25' : '\u2744\uFE0F';
     badge.className = 'streak-badge' + (streak < 2 ? ' cold' : '');
+    const icon = streak >= 4 ? '\uD83D\uDD25' : streak >= 2 ? '\u2B50' : '\u2744\uFE0F';
     const label = streak === 1 ? 'Woche' : 'Wochen';
-    badge.innerHTML = `<span>${streak >= 4 ? '\uD83D\uDD25' : streak >= 2 ? '\u2B50' : '\u2744\uFE0F'}</span> ${streak} ${label}`;
+    badge.textContent = `${icon} ${streak} ${label}`;
   } else {
     badge.style.display = 'none';
   }

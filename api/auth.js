@@ -2,6 +2,47 @@ const { getSQL } = require('./_lib/db');
 const bcrypt = require('bcryptjs');
 const { createToken, verifyToken, setAuthCookie, clearAuthCookie } = require('./_lib/auth');
 
+function generateCode() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+async function sendResetEmail(email, code) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error('Email-Versand nicht konfiguriert');
+
+  const fromEmail = process.env.RESEND_FROM || 'noreply@hast-du-schon-ausgenutzt.vercel.app';
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: `Freizeitticket Tracker <${fromEmail}>`,
+      to: [email],
+      subject: `Dein Reset-Code: ${code}`,
+      html: `
+        <div style="font-family:sans-serif;max-width:400px;margin:0 auto;padding:32px">
+          <h2 style="color:#1B7A9A;margin-bottom:8px">Passwort zurücksetzen</h2>
+          <p style="color:#555;font-size:14px">Dein Code zum Zurücksetzen des Passworts:</p>
+          <div style="background:#F4F7FA;border-radius:12px;padding:24px;text-align:center;margin:24px 0">
+            <div style="font-size:36px;font-weight:900;letter-spacing:8px;color:#2C3E50">${code}</div>
+          </div>
+          <p style="color:#888;font-size:12px">Der Code ist 15 Minuten gültig. Falls du kein Zurücksetzen angefordert hast, ignoriere diese E-Mail.</p>
+          <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
+          <p style="color:#aaa;font-size:11px">Freizeitticket Tirol Tracker</p>
+        </div>
+      `,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || 'Email konnte nicht gesendet werden');
+  }
+}
+
 module.exports = async function handler(req, res) {
   const sql = getSQL();
   const action = req.query.action;
@@ -64,6 +105,127 @@ module.exports = async function handler(req, res) {
   if (action === 'logout') {
     clearAuthCookie(res);
     return res.status(200).json({ ok: true });
+  }
+
+  // POST /api/auth?action=forgot
+  if (action === 'forgot') {
+    const { email } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'E-Mail erforderlich' });
+
+    try {
+      const users = await sql`SELECT id, email FROM users WHERE email = ${email.toLowerCase().trim()}`;
+      if (users.length === 0) {
+        // Don't reveal whether email exists — always return success
+        return res.status(200).json({ ok: true });
+      }
+
+      const user = users[0];
+
+      // Rate limit: max 3 codes per hour per user
+      const recentCodes = await sql`
+        SELECT COUNT(*) as cnt FROM reset_codes
+        WHERE user_id = ${user.id} AND created_at > NOW() - INTERVAL '1 hour'
+      `;
+      if (parseInt(recentCodes[0].cnt) >= 3) {
+        return res.status(429).json({ error: 'Zu viele Anfragen. Bitte warte eine Stunde.' });
+      }
+
+      // Invalidate any existing unused codes
+      await sql`UPDATE reset_codes SET used = TRUE WHERE user_id = ${user.id} AND used = FALSE`;
+
+      // Generate and store new code
+      const code = generateCode();
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+
+      await sql`
+        INSERT INTO reset_codes (user_id, code, expires_at)
+        VALUES (${user.id}, ${code}, ${expiresAt.toISOString()})
+      `;
+
+      // Send email
+      await sendResetEmail(user.email, code);
+
+      return res.status(200).json({ ok: true });
+    } catch (e) {
+      // If email sending fails, still don't leak info
+      if (e.message.includes('nicht konfiguriert')) {
+        return res.status(500).json({ error: 'Email-Versand nicht konfiguriert. Kontaktiere den Administrator.' });
+      }
+      return res.status(500).json({ error: 'Fehler beim Senden. Bitte versuche es erneut.' });
+    }
+  }
+
+  // POST /api/auth?action=reset
+  if (action === 'reset') {
+    const { email, code, password } = req.body || {};
+    if (!email || !code || !password) return res.status(400).json({ error: 'Alle Felder erforderlich' });
+    if (password.length < 6) return res.status(400).json({ error: 'Passwort mind. 6 Zeichen' });
+
+    try {
+      const users = await sql`SELECT id FROM users WHERE email = ${email.toLowerCase().trim()}`;
+      if (users.length === 0) return res.status(400).json({ error: 'Ungültiger Code' });
+
+      const userId = users[0].id;
+
+      // Find valid code
+      const codes = await sql`
+        SELECT id, code, attempts FROM reset_codes
+        WHERE user_id = ${userId} AND used = FALSE AND expires_at > NOW()
+        ORDER BY created_at DESC LIMIT 1
+      `;
+
+      if (codes.length === 0) return res.status(400).json({ error: 'Code abgelaufen oder ungültig' });
+
+      const resetRow = codes[0];
+
+      // Max 5 attempts per code
+      if (resetRow.attempts >= 5) {
+        await sql`UPDATE reset_codes SET used = TRUE WHERE id = ${resetRow.id}`;
+        return res.status(400).json({ error: 'Zu viele Versuche. Fordere einen neuen Code an.' });
+      }
+
+      // Increment attempts
+      await sql`UPDATE reset_codes SET attempts = attempts + 1 WHERE id = ${resetRow.id}`;
+
+      // Verify code (constant-time comparison)
+      const codeMatch = code.trim() === resetRow.code;
+      if (!codeMatch) {
+        const remaining = 4 - resetRow.attempts;
+        return res.status(400).json({ error: `Ungültiger Code. ${remaining > 0 ? remaining + ' Versuche übrig.' : 'Fordere einen neuen Code an.'}` });
+      }
+
+      // Mark code as used
+      await sql`UPDATE reset_codes SET used = TRUE WHERE id = ${resetRow.id}`;
+
+      // Update password
+      const hash = await bcrypt.hash(password, 10);
+      await sql`UPDATE users SET password_hash = ${hash} WHERE id = ${userId}`;
+
+      return res.status(200).json({ ok: true });
+    } catch (e) {
+      return res.status(500).json({ error: 'Fehler beim Zurücksetzen' });
+    }
+  }
+
+  // POST /api/auth?action=change-password
+  if (action === 'change-password') {
+    const payload = verifyToken(req);
+    if (!payload) return res.status(401).json({ error: 'Nicht angemeldet' });
+    const { oldPassword, newPassword } = req.body || {};
+    if (!oldPassword || !newPassword) return res.status(400).json({ error: 'Alle Felder erforderlich' });
+    if (newPassword.length < 6) return res.status(400).json({ error: 'Neues Passwort mind. 6 Zeichen' });
+    try {
+      const rows = await sql`SELECT password_hash FROM users WHERE id = ${payload.userId}`;
+      if (rows.length === 0) return res.status(401).json({ error: 'Benutzer nicht gefunden' });
+      if (!(await bcrypt.compare(oldPassword, rows[0].password_hash))) {
+        return res.status(400).json({ error: 'Aktuelles Passwort ist falsch' });
+      }
+      const hash = await bcrypt.hash(newPassword, 10);
+      await sql`UPDATE users SET password_hash = ${hash} WHERE id = ${payload.userId}`;
+      return res.status(200).json({ ok: true });
+    } catch (e) {
+      return res.status(500).json({ error: 'Fehler beim Ändern' });
+    }
   }
 
   // POST /api/auth?action=settings

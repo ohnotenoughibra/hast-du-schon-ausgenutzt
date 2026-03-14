@@ -58,6 +58,18 @@ module.exports = async function handler(req, res) {
         UNIQUE(group_id, user_id)
       )
     `;
+    await sql`
+      CREATE TABLE IF NOT EXISTS reset_codes (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        code VARCHAR(6) NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        used BOOLEAN DEFAULT FALSE,
+        attempts INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_reset_codes_user ON reset_codes(user_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_activities_user ON activities(user_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_gm_group ON group_members(group_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_gm_user ON group_members(user_id)`;
