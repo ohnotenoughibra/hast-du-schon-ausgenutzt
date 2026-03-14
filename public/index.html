@@ -1474,7 +1474,7 @@ function switchView(viewId) {
   fab.style.display = viewId === 'viewTracker' ? 'flex' : 'none';
 
   if (viewId === 'viewLeaderboard' && currentUser) {
-    loadMyGroups();
+    loadMyGroups(true);
   }
 }
 
@@ -1686,6 +1686,7 @@ async function addActivity() {
   closeAddModal();
   renderActivities();
   updateDashboard();
+  markLeaderboardDirty();
 
   // Check milestone
   const totalValue = state.activities.reduce((s, a) => s + a.price, 0);
@@ -1709,6 +1710,7 @@ async function deleteActivity(id) {
   save();
   renderActivities();
   updateDashboard();
+  markLeaderboardDirty();
 }
 
 function clearAll() {
@@ -1721,6 +1723,7 @@ function clearAll() {
   save();
   renderActivities();
   updateDashboard();
+  markLeaderboardDirty();
 }
 
 // ========== RENDER ==========
@@ -1930,8 +1933,16 @@ async function leaveGroup(groupId) {
   }
 }
 
-async function loadMyGroups() {
+let _lbCache = null;
+let _lbDirty = true;
+
+function markLeaderboardDirty() { _lbDirty = true; }
+
+async function loadMyGroups(force) {
   if (!currentUser) return;
+
+  // Skip reload if not dirty and not forced
+  if (!force && !_lbDirty && _lbCache) return;
 
   const lbNotLoggedIn = document.getElementById('lbNotLoggedIn');
   const lbNoGroups = document.getElementById('lbNoGroups');
@@ -1948,6 +1959,8 @@ async function loadMyGroups() {
       lbNoGroups.style.display = 'block';
       lbGroups.style.display = 'none';
       lbGroupActions.style.display = 'none';
+      _lbCache = null;
+      _lbDirty = false;
       return;
     }
 
@@ -1967,6 +1980,8 @@ async function loadMyGroups() {
     }
 
     lbGroups.innerHTML = html;
+    _lbCache = html;
+    _lbDirty = false;
   } catch(e) {
     lbNoGroups.style.display = 'block';
     lbGroups.style.display = 'none';
