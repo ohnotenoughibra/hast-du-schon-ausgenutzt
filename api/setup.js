@@ -1,7 +1,17 @@
 const { getSQL } = require('./_lib/db');
+const { verifyToken } = require('./_lib/auth');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  // Require auth OR a setup secret
+  const setupSecret = process.env.SETUP_SECRET;
+  const providedSecret = req.headers['x-setup-secret'];
+  const payload = verifyToken(req);
+
+  if (!payload && (!setupSecret || providedSecret !== setupSecret)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
 
   const sql = getSQL();
 

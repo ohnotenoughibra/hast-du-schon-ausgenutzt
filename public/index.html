@@ -969,6 +969,17 @@
       <div class="section-title">Letzte Aktivit&auml;ten</div>
       <a class="section-link" id="clearAllBtn" onclick="clearAll()" style="display:none">Alle l&ouml;schen</a>
     </div>
+    <div id="activityFilterRow" style="display:none;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch">
+      <div style="display:flex;gap:6px;padding-bottom:4px">
+        <button class="activity-filter active" data-filter="" onclick="filterActivities('')" style="background:var(--ftt-blue);color:white;border:none;padding:6px 12px;border-radius:16px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Alle</button>
+        <button class="activity-filter" data-filter="ski" onclick="filterActivities('ski')" style="background:#F0F2F5;color:var(--ftt-text);border:none;padding:6px 12px;border-radius:16px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">&#9975;&#65039; Ski</button>
+        <button class="activity-filter" data-filter="swim" onclick="filterActivities('swim')" style="background:#F0F2F5;color:var(--ftt-text);border:none;padding:6px 12px;border-radius:16px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">&#127946; Schwimmen</button>
+        <button class="activity-filter" data-filter="cable" onclick="filterActivities('cable')" style="background:#F0F2F5;color:var(--ftt-text);border:none;padding:6px 12px;border-radius:16px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">&#128673; Bergbahnen</button>
+        <button class="activity-filter" data-filter="sled" onclick="filterActivities('sled')" style="background:#F0F2F5;color:var(--ftt-text);border:none;padding:6px 12px;border-radius:16px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">&#128759; Rodeln</button>
+        <button class="activity-filter" data-filter="skate" onclick="filterActivities('skate')" style="background:#F0F2F5;color:var(--ftt-text);border:none;padding:6px 12px;border-radius:16px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">&#9976;&#65039; Eis</button>
+        <button class="activity-filter" data-filter="museum" onclick="filterActivities('museum')" style="background:#F0F2F5;color:var(--ftt-text);border:none;padding:6px 12px;border-radius:16px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">&#127963;&#65039; Kultur</button>
+      </div>
+    </div>
     <div class="activity-list" id="activityList">
       <div class="empty-state">
         <div class="empty-state-icon">&#127956;&#65039;</div>
@@ -1397,16 +1408,27 @@ let state = {
 let currentUser = null; // { id, email, displayName, ticketType }
 let isOnline = false; // logged in with API
 
-// ========== API HELPERS ==========
+// ========== HELPERS ==========
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
 async function api(path, opts = {}) {
-  const res = await fetch(path, {
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'same-origin',
-    ...opts,
-    body: opts.body ? JSON.stringify(opts.body) : undefined,
-  });
+  let res;
+  try {
+    res = await fetch(path, {
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      ...opts,
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+    });
+  } catch(e) {
+    throw new Error('Keine Internetverbindung');
+  }
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Fehler');
+  if (!res.ok) throw new Error(data.error || 'Serverfehler');
   return data;
 }
 
@@ -1592,7 +1614,9 @@ async function handleRegister() {
           },
         });
         showToast(localActivities.length + ' Aktivit\u00E4ten importiert!');
-      } catch(e) {}
+      } catch(e) {
+        showToast('Import fehlgeschlagen: ' + e.message);
+      }
     }
 
     // Reload from DB
@@ -1642,9 +1666,15 @@ function renderVenues() {
 
   list.innerHTML = filtered.map(v => {
     const sel = state.selectedVenueId === v.id ? 'selected' : '';
-    const limitTag = v.limited ? ` <span style="color:#E8871E;font-size:9px">(${v.limited}x)</span>` : '';
-    return `<div class="venue-option ${sel}" onclick="selectVenue('${v.id}')">
-      <span>${v.icon} ${v.name}${limitTag}</span>
+    let limitTag = '';
+    if (v.limited) {
+      const used = state.activities.filter(a => a.venueId === v.id).length;
+      const left = v.limited - used;
+      const color = left <= 0 ? '#E74C3C' : '#E8871E';
+      limitTag = ` <span style="color:${color};font-size:9px">(${left > 0 ? left + '/' + v.limited + ' frei' : 'ausgesch\u00F6pft'})</span>`;
+    }
+    return `<div class="venue-option ${sel}" onclick="selectVenue('${esc(v.id)}')">
+      <span>${v.icon} ${esc(v.name)}${limitTag}</span>
       <span class="venue-price">\u20AC${v.price.toFixed(0)}</span>
     </div>`;
   }).join('');
@@ -1716,11 +1746,12 @@ async function addActivity() {
 }
 
 async function deleteActivity(id) {
+  if (!confirm('Aktivit\u00E4t l\u00F6schen?')) return;
   if (isOnline) {
     try {
       await api('/api/activities', { method: 'DELETE', body: { id } });
     } catch(e) {
-      alert('Fehler: ' + e.message);
+      showToast('Fehler: ' + e.message);
       return;
     }
   }
@@ -1732,11 +1763,12 @@ async function deleteActivity(id) {
   markLeaderboardDirty();
 }
 
-function clearAll() {
+async function clearAll() {
   if (!confirm('Alle Aktivit\u00E4ten l\u00F6schen?')) return;
   if (isOnline) {
-    // Delete each from DB
-    Promise.all(state.activities.map(a => api('/api/activities', { method: 'DELETE', body: { id: a.id } }).catch(() => {})));
+    try {
+      await Promise.all(state.activities.map(a => api('/api/activities', { method: 'DELETE', body: { id: a.id } }).catch(() => {})));
+    } catch(e) {}
   }
   state.activities = [];
   save();
@@ -1746,9 +1778,23 @@ function clearAll() {
 }
 
 // ========== RENDER ==========
+let activeFilter = '';
+
+function filterActivities(cat) {
+  activeFilter = cat;
+  document.querySelectorAll('.activity-filter').forEach(b => {
+    const isActive = b.dataset.filter === cat;
+    b.style.background = isActive ? 'var(--ftt-blue)' : '#F0F2F5';
+    b.style.color = isActive ? 'white' : 'var(--ftt-text)';
+    if (isActive) b.classList.add('active'); else b.classList.remove('active');
+  });
+  renderActivities();
+}
+
 function renderActivities() {
   const list = document.getElementById('activityList');
   const clearBtn = document.getElementById('clearAllBtn');
+  const filterRow = document.getElementById('activityFilterRow');
 
   if (state.activities.length === 0) {
     list.innerHTML = `<div class="empty-state">
@@ -1757,19 +1803,30 @@ function renderActivities() {
       <div class="empty-state-sub">Tippe + um deine erste Aktivit\u00E4t hinzuzuf\u00FCgen</div>
     </div>`;
     clearBtn.style.display = 'none';
+    filterRow.style.display = 'none';
     return;
   }
 
   clearBtn.style.display = 'block';
+  filterRow.style.display = state.activities.length >= 3 ? 'block' : 'none';
 
-  list.innerHTML = state.activities.map(a => {
+  const filtered = activeFilter
+    ? state.activities.filter(a => a.category === activeFilter)
+    : state.activities;
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-text">Keine Aktivit\u00E4ten in dieser Kategorie</div></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(a => {
     const catClass = a.category === 'museum' ? 'museum' : a.category;
     const d = new Date(a.date);
     const dateStr = d.toLocaleDateString('de-AT', { day: '2-digit', month: 'short' });
     return `<div class="activity-item">
       <div class="activity-icon-wrap ${catClass}">${a.icon}</div>
       <div class="activity-info">
-        <div class="activity-name">${a.venueName}</div>
+        <div class="activity-name">${esc(a.venueName)}</div>
         <div class="activity-meta">${dateStr} \u00B7 ${a.hours}h</div>
       </div>
       <div class="activity-value">
@@ -1893,6 +1950,10 @@ async function handleCreateGroup() {
   const name = document.getElementById('groupName').value.trim();
   if (!name) return;
 
+  const btn = document.querySelector('#createGroupModal .btn-submit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>Erstellen...';
+
   try {
     const data = await api('/api/groups?action=create', { method: 'POST', body: { name } });
     lastCreatedCode = data.group.code;
@@ -1901,9 +1962,12 @@ async function handleCreateGroup() {
     document.getElementById('codeResultValue').textContent = data.group.code;
     document.getElementById('codeResultModal').classList.add('active');
 
-    loadMyGroups();
+    loadMyGroups(true);
   } catch(e) {
-    alert(e.message);
+    showToast(e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Erstellen';
   }
 }
 
@@ -1911,13 +1975,20 @@ async function handleJoinGroup() {
   const code = document.getElementById('joinCode').value.trim();
   if (!code) return;
 
+  const btn = document.querySelector('#joinGroupModal .btn-submit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>Beitreten...';
+
   try {
     const data = await api('/api/groups?action=join', { method: 'POST', body: { code } });
     closeModal('joinGroupModal');
-    showToast('Gruppe "' + data.group.name + '" beigetreten!');
-    loadMyGroups();
+    showToast('Gruppe "' + esc(data.group.name) + '" beigetreten!');
+    loadMyGroups(true);
   } catch(e) {
-    alert(e.message);
+    showToast(e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Beitreten';
   }
 }
 
@@ -1992,6 +2063,11 @@ async function loadMyGroups(force) {
   // Always hide the not-logged-in state
   lbNotLoggedIn.style.display = 'none';
 
+  // Show loading
+  lbGroups.innerHTML = '<div style="text-align:center;padding:40px"><span class="loading-spinner" style="border-color:rgba(0,0,0,0.1);border-top-color:var(--ftt-blue);width:24px;height:24px"></span></div>';
+  lbGroups.style.display = 'block';
+  lbNoGroups.style.display = 'none';
+
   try {
     const data = await api('/api/groups?action=mine');
 
@@ -2008,16 +2084,22 @@ async function loadMyGroups(force) {
     lbGroups.style.display = 'block';
     lbGroupActions.style.display = 'block';
 
-    // Load leaderboard for each group
+    // Load leaderboards in parallel
+    const results = await Promise.allSettled(
+      data.groups.map(group =>
+        api(`/api/groups?action=leaderboard&code=${group.code}`)
+          .then(lb => ({ group, leaderboard: lb.leaderboard }))
+      )
+    );
+
     let html = '';
-    for (const group of data.groups) {
-      try {
-        const lb = await api(`/api/groups?action=leaderboard&code=${group.code}`);
-        html += renderGroupLeaderboard(group, lb.leaderboard);
-      } catch(e) {
-        html += `<div class="lb-group-card"><div class="lb-group-name">${group.name}</div><div class="empty-state-sub">Fehler beim Laden</div></div>`;
+    results.forEach((result, i) => {
+      if (result.status === 'fulfilled') {
+        html += renderGroupLeaderboard(result.value.group, result.value.leaderboard);
+      } else {
+        html += `<div class="lb-group-card"><div class="lb-group-name">${esc(data.groups[i].name)}</div><div class="empty-state-sub">Fehler beim Laden</div></div>`;
       }
-    }
+    });
 
     lbGroups.innerHTML = html;
     _lbCache = html;
@@ -2035,14 +2117,14 @@ function renderGroupLeaderboard(group, entries) {
 
   let entriesHtml = entries.map(e => {
     const tp = ticketPriceMap[e.ticketType] || 759;
-    const pct = Math.min(Math.round((e.totalValue / tp) * 100), 999);
+    const pct = Math.round((e.totalValue / tp) * 100);
     const rankClass = e.rank === 1 ? 'gold' : e.rank === 2 ? 'silver' : e.rank === 3 ? 'bronze' : '';
     const rankIcon = e.rank === 1 ? '\uD83D\uDC51' : e.rank;
     const meClass = e.isMe ? 'me' : '';
 
     return `<div class="lb-entry ${meClass}">
       <div class="lb-rank ${rankClass}">${rankIcon}</div>
-      <div class="lb-name">${e.displayName}${e.isMe ? ' (du)' : ''}</div>
+      <div class="lb-name">${esc(e.displayName)}${e.isMe ? ' (du)' : ''}</div>
       <div>
         <span class="lb-value">\u20AC${e.totalValue.toFixed(0)}</span>
         <span class="lb-percent">${pct}%</span>
@@ -2054,18 +2136,33 @@ function renderGroupLeaderboard(group, entries) {
     entriesHtml = '<div class="empty-state-sub" style="padding:16px;text-align:center">Noch keine Mitglieder</div>';
   }
 
-  return `<div class="lb-group-card">
+  return `<div class="lb-group-card" data-group-code="${esc(group.code)}" data-group-name="${esc(group.name)}" data-group-id="${group.id}">
     <div class="lb-group-header">
-      <div class="lb-group-name">${group.name}</div>
-      <button class="lb-group-code" onclick="shareGroupCode('${group.code}','${group.name.replace(/'/g, "\\'")}');" title="Code teilen">${group.code}</button>
+      <div class="lb-group-name">${esc(group.name)}</div>
+      <button class="lb-group-code lb-share-trigger" title="Code teilen">${esc(group.code)}</button>
     </div>
     ${entriesHtml}
     <div class="lb-actions">
-      <button class="lb-action-btn lb-share-btn" onclick="shareGroupCode('${group.code}','${group.name.replace(/'/g, "\\'")}');">Code teilen</button>
-      <button class="lb-action-btn lb-leave-btn" onclick="leaveGroup(${group.id})">Verlassen</button>
+      <button class="lb-action-btn lb-share-btn lb-share-trigger">Code teilen</button>
+      <button class="lb-action-btn lb-leave-btn lb-leave-trigger">Verlassen</button>
     </div>
   </div>`;
 }
+
+// Delegated event listeners for leaderboard (XSS-safe)
+document.getElementById('lbGroups').addEventListener('click', function(e) {
+  const card = e.target.closest('.lb-group-card');
+  if (!card) return;
+  const code = card.dataset.groupCode;
+  const name = card.dataset.groupName;
+  const id = parseInt(card.dataset.groupId);
+
+  if (e.target.closest('.lb-share-trigger')) {
+    shareGroupCode(code, name);
+  } else if (e.target.closest('.lb-leave-trigger')) {
+    leaveGroup(id);
+  }
+});
 
 // ========== TOAST ==========
 function showToast(msg) {
@@ -2204,6 +2301,16 @@ function dismissInstall() {
 
 // ========== KEYBOARD SUPPORT ==========
 document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modals = ['editNameModal', 'codeResultModal', 'joinGroupModal', 'createGroupModal', 'authModal', 'settingsModal', 'addModal'];
+    for (const id of modals) {
+      const el = document.getElementById(id);
+      if (el && el.classList.contains('active')) {
+        closeModal(id);
+        break;
+      }
+    }
+  }
   if (e.key === 'Enter') {
     if (document.getElementById('authModal').classList.contains('active')) {
       if (document.getElementById('authLoginForm').style.display !== 'none') {
@@ -2211,6 +2318,12 @@ document.addEventListener('keydown', (e) => {
       } else {
         handleRegister();
       }
+    } else if (document.getElementById('joinGroupModal').classList.contains('active')) {
+      handleJoinGroup();
+    } else if (document.getElementById('createGroupModal').classList.contains('active')) {
+      handleCreateGroup();
+    } else if (document.getElementById('editNameModal').classList.contains('active')) {
+      handleEditName();
     }
   }
 });
