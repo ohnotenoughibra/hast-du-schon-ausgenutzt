@@ -1689,7 +1689,7 @@ async function addActivity() {
 
   // Check milestone
   const totalValue = state.activities.reduce((s, a) => s + a.price, 0);
-  const ticketPrice = ticketTypes.find(t => t.id === state.ticketType)?.price || 727;
+  const ticketPrice = ticketTypes.find(t => t.id === state.ticketType)?.price || 759;
   if (totalValue >= ticketPrice && (totalValue - activity.price) < ticketPrice) {
     celebrate();
   }
@@ -1933,9 +1933,13 @@ async function leaveGroup(groupId) {
 async function loadMyGroups() {
   if (!currentUser) return;
 
+  const lbNotLoggedIn = document.getElementById('lbNotLoggedIn');
   const lbNoGroups = document.getElementById('lbNoGroups');
   const lbGroups = document.getElementById('lbGroups');
   const lbGroupActions = document.getElementById('lbGroupActions');
+
+  // Always hide the not-logged-in state
+  lbNotLoggedIn.style.display = 'none';
 
   try {
     const data = await api('/api/groups?action=mine');
@@ -1966,6 +1970,7 @@ async function loadMyGroups() {
   } catch(e) {
     lbNoGroups.style.display = 'block';
     lbGroups.style.display = 'none';
+    lbGroupActions.style.display = 'none';
   }
 }
 
@@ -1974,7 +1979,7 @@ function renderGroupLeaderboard(group, entries) {
   ticketTypes.forEach(t => { ticketPriceMap[t.id] = t.price; });
 
   let entriesHtml = entries.map(e => {
-    const tp = ticketPriceMap[e.ticketType] || 727;
+    const tp = ticketPriceMap[e.ticketType] || 759;
     const pct = Math.min(Math.round((e.totalValue / tp) * 100), 999);
     const rankClass = e.rank === 1 ? 'gold' : e.rank === 2 ? 'silver' : e.rank === 3 ? 'bronze' : '';
     const rankIcon = e.rank === 1 ? '\uD83D\uDC51' : e.rank;
@@ -2058,9 +2063,48 @@ function celebrate() {
   }, 500);
 }
 
-// ========== SERVICE WORKER ==========
+// ========== SERVICE WORKER + UPDATE ==========
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
+  navigator.serviceWorker.register('/sw.js').then(reg => {
+    // Check for updates every 5 minutes
+    setInterval(() => reg.update(), 5 * 60 * 1000);
+
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'activated') {
+          showUpdateBanner();
+        }
+      });
+    });
+  }).catch(() => {});
+
+  // Listen for SW_UPDATED message
+  navigator.serviceWorker.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      showUpdateBanner();
+    }
+  });
+}
+
+function showUpdateBanner() {
+  if (document.getElementById('updateBanner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'updateBanner';
+  banner.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+    background: linear-gradient(135deg, #27AE60, #1E8449);
+    color: white; padding: 12px 20px; display: flex;
+    align-items: center; justify-content: space-between;
+    font-family: Montserrat, sans-serif; font-size: 13px; font-weight: 600;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  `;
+  banner.innerHTML = `
+    <span>Neue Version verf\u00FCgbar!</span>
+    <button onclick="location.reload()" style="background:white;color:#1E8449;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:12px">Aktualisieren</button>
+  `;
+  document.body.appendChild(banner);
+  document.querySelector('.header').style.marginTop = '48px';
 }
 
 // ========== PWA INSTALL PROMPT ==========

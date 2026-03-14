@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ftt-tracker-v1';
+const CACHE_NAME = 'ftt-tracker-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -16,18 +16,45 @@ self.addEventListener('install', (e) => {
   self.skipWaiting();
 });
 
-// Activate: clean old caches
+// Activate: clean old caches and notify clients
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    ).then(() => {
+      // Notify all clients about the update
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => client.postMessage({ type: 'SW_UPDATED' }));
+      });
+    })
   );
   self.clients.claim();
 });
 
-// Fetch: cache-first for assets, network-first for pages
+// Fetch: network-first for HTML/API, cache-first for assets
 self.addEventListener('fetch', (e) => {
+  const url = new URL(e.request.url);
+
+  // Always go to network for API calls
+  if (url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  // Network-first for HTML pages
+  if (e.request.mode === 'navigate' || e.request.headers.get('accept')?.includes('text/html')) {
+    e.respondWith(
+      fetch(e.request).then((response) => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+        }
+        return response;
+      }).catch(() => caches.match(e.request).then(r => r || caches.match('/index.html')))
+    );
+    return;
+  }
+
+  // Cache-first for other assets
   e.respondWith(
     caches.match(e.request).then((cached) => {
       return cached || fetch(e.request).then((response) => {
