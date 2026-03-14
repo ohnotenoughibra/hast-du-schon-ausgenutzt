@@ -934,7 +934,7 @@
     <div class="hero-card">
       <div class="hero-question">Dein Ticketwert</div>
       <div class="hero-value" id="heroValue">&euro;0</div>
-      <div class="hero-of">von <span id="heroTicketPrice">&euro;727</span> ausgenutzt</div>
+      <div class="hero-of">von <span id="heroTicketPrice">&euro;759</span> ausgenutzt</div>
       <div class="progress-bar-bg">
         <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
       </div>
@@ -1243,7 +1243,7 @@
 <script>
 // ========== VENUE DATABASE ==========
 const venues = [
-  // SKI & SNOWBOARD
+  // SKI & SNOWBOARD - Major resorts
   { id: 'axamer', name: 'Axamer Lizum', category: 'ski', price: 58, icon: '\u26F7\uFE0F' },
   { id: 'stubaier', name: 'Stubaier Gletscher', category: 'ski', price: 72, icon: '\u26F7\uFE0F' },
   { id: 'schlick', name: 'Schlick 2000', category: 'ski', price: 56, icon: '\u26F7\uFE0F' },
@@ -1262,6 +1262,14 @@ const venues = [
   { id: 'elfer', name: 'Elferbahnen Neustift', category: 'ski', price: 42, icon: '\u26F7\uFE0F' },
   { id: 'rosshuette', name: 'Bergbahnen Rossh\u00FCtte Seefeld', category: 'ski', price: 54, icon: '\u26F7\uFE0F' },
   { id: 'skilift_arlberg', name: 'Ski Arlberg *', category: 'ski', price: 76, icon: '\u26F7\uFE0F', limited: 3 },
+  { id: 'gurgl', name: 'Skiregion Gurgl', category: 'ski', price: 72, icon: '\u26F7\uFE0F' },
+  { id: 'hochkoessen', name: 'Hochk\u00F6ssen', category: 'ski', price: 52, icon: '\u26F7\uFE0F' },
+  { id: 'kolsassberg', name: 'Skilift Kolsassberg', category: 'ski', price: 20, icon: '\u26F7\uFE0F' },
+  { id: 'katzenkopf', name: 'Katzenkopf Leutasch', category: 'ski', price: 32, icon: '\u26F7\uFE0F' },
+  { id: 'kellerjoch', name: 'Kellerjoch', category: 'ski', price: 36, icon: '\u26F7\uFE0F' },
+  { id: 'kinderland_rinn', name: 'Kinderland Rinn', category: 'ski', price: 18, icon: '\u26F7\uFE0F' },
+  { id: 'sonnenberglift', name: 'Sonnenberglift Gries', category: 'ski', price: 20, icon: '\u26F7\uFE0F' },
+  // Small lifts
   { id: 'birkenlift', name: 'Seefeld Birkenlift', category: 'ski', price: 28, icon: '\u26F7\uFE0F' },
   { id: 'geigenbuehel', name: 'Skilift Geigenb\u00FChel', category: 'ski', price: 26, icon: '\u26F7\uFE0F' },
   { id: 'trins_lift', name: 'Skilift Trins', category: 'ski', price: 22, icon: '\u26F7\uFE0F' },
@@ -1270,7 +1278,7 @@ const venues = [
   { id: 'vogelsberg', name: 'V\u00F6gelsberg Wattens', category: 'ski', price: 20, icon: '\u26F7\uFE0F' },
   { id: 'wildstaettlift', name: 'Wildst\u00E4ttlift Wattenberg', category: 'ski', price: 18, icon: '\u26F7\uFE0F' },
 
-  // CABLE CARS
+  // CABLE CARS / BERGBAHNEN (Summer)
   { id: 'nordkette_cable', name: 'Nordkettenbahnen', category: 'cable', price: 39.50, icon: '\uD83D\uDEA1' },
   { id: 'patscherkofel_cable', name: 'Patscherkofel Bergbahn', category: 'cable', price: 32, icon: '\uD83D\uDEA1' },
   { id: 'muttereralm_cable', name: 'Muttereralm Bahn', category: 'cable', price: 28, icon: '\uD83D\uDEA1' },
@@ -1283,11 +1291,20 @@ const venues = [
   { id: 'rosshuette_cable', name: 'Rossh\u00FCtte Seefeld', category: 'cable', price: 36, icon: '\uD83D\uDEA1' },
 
   // RODELN
-  { id: 'muttereralm_rodeln', name: 'Muttereralm Rodelbahn', category: 'sled', price: 28, icon: '\uD83D\uDEF7' },
+  { id: 'kappl_rodeln', name: 'Kappl Rodelbahn', category: 'sled', price: 30, icon: '\uD83D\uDEF7' },
+  { id: 'kuehtai_rodeln', name: 'K\u00FChtai Rodelbahn', category: 'sled', price: 28, icon: '\uD83D\uDEF7' },
+  { id: 'bergeralm_rodeln', name: 'Berger Alm Rodelbahn', category: 'sled', price: 26, icon: '\uD83D\uDEF7' },
   { id: 'elfer_rodeln', name: 'Elferbahnen Rodelbahn', category: 'sled', price: 26, icon: '\uD83D\uDEF7' },
+  { id: 'glungezer_rodeln', name: 'Glungezer Rodelbahn', category: 'sled', price: 28, icon: '\uD83D\uDEF7' },
+  { id: 'gurgl_rodeln', name: 'Skiregion Gurgl Rodelbahn', category: 'sled', price: 32, icon: '\uD83D\uDEF7' },
+  { id: 'katzenkopf_rodeln', name: 'Katzenkopf Leutasch Rodeln', category: 'sled', price: 20, icon: '\uD83D\uDEF7' },
+  { id: 'kellerjoch_rodeln', name: 'Kellerjoch Rodelbahn', category: 'sled', price: 22, icon: '\uD83D\uDEF7' },
   { id: 'rangger_rodeln', name: 'Rangger K\u00F6pfl Rodelbahn', category: 'sled', price: 22, icon: '\uD83D\uDEF7' },
+  { id: 'schlick_rodeln', name: 'Schlick 2000 Rodelbahn', category: 'sled', price: 28, icon: '\uD83D\uDEF7' },
+  { id: 'serles_rodeln', name: 'Serlesbahnen Mieders Rodeln', category: 'sled', price: 22, icon: '\uD83D\uDEF7' },
 
-  // EISLAUFEN
+  // EISLAUFEN (limited: 3 Eintritte)
+  { id: 'eis_olympiaworld', name: 'Olympiaworld Innsbruck *', category: 'skate', price: 8, icon: '\u26F8\uFE0F', limited: 3 },
   { id: 'eis_goetzens', name: 'Eishalle G\u00F6tzens', category: 'skate', price: 7, icon: '\u26F8\uFE0F' },
   { id: 'eis_steinach', name: 'Eishalle Steinach', category: 'skate', price: 6, icon: '\u26F8\uFE0F' },
   { id: 'eis_baggersee', name: 'Eislaufplatz Baggersee', category: 'skate', price: 5, icon: '\u26F8\uFE0F' },
@@ -1297,18 +1314,36 @@ const venues = [
   { id: 'eis_sillpark', name: 'Eislaufplatz Sillpark', category: 'skate', price: 7, icon: '\u26F8\uFE0F' },
   { id: 'eis_silz', name: 'Eislaufplatz Silz', category: 'skate', price: 5, icon: '\u26F8\uFE0F' },
   { id: 'eis_trins', name: 'Eislaufplatz Trins', category: 'skate', price: 5, icon: '\u26F8\uFE0F' },
+  { id: 'eis_vomp', name: 'Eislaufplatz Vomp', category: 'skate', price: 5, icon: '\u26F8\uFE0F' },
+  { id: 'eis_wattens', name: 'Eislaufplatz Wattens', category: 'skate', price: 5, icon: '\u26F8\uFE0F' },
   { id: 'eis_zirl', name: 'Eislaufplatz Zirl', category: 'skate', price: 5, icon: '\u26F8\uFE0F' },
 
-  // SCHWIMMEN
+  // SCHWIMMEN - Hallenb\u00E4der (Winter)
   { id: 'hallenbad_amraser', name: 'Hallenbad Amraser Stra\u00DFe', category: 'swim', price: 6.80, icon: '\uD83C\uDFCA' },
   { id: 'hallenbad_hoetting', name: 'Hallenbad H\u00F6ttinger Au', category: 'swim', price: 6.80, icon: '\uD83C\uDFCA' },
   { id: 'hallenbad_olymp', name: 'Hallenbad Olympisches Dorf', category: 'swim', price: 6.80, icon: '\uD83C\uDFCA' },
   { id: 'telfer_bad', name: 'Telfer Bad *', category: 'swim', price: 8.50, icon: '\uD83C\uDFCA', limited: 3 },
+  // SCHWIMMEN - Freib\u00E4der (Sommer)
+  { id: 'tivoli', name: 'Freibad Tivoli Innsbruck', category: 'swim', price: 6.60, icon: '\uD83C\uDFCA' },
+  { id: 'alpenbad_wattens', name: 'Alpenbad Wattens', category: 'swim', price: 6, icon: '\uD83C\uDFCA' },
+  { id: 'baggersee_rossau', name: 'Baggersee Rossau', category: 'swim', price: 5, icon: '\uD83C\uDFCA' },
+  { id: 'erlebnisbad_schwaz', name: 'Erlebnisschwimmbad Schwaz', category: 'swim', price: 7, icon: '\uD83C\uDFCA' },
+  { id: 'familienbad_mutters', name: 'Familienbad Mutters', category: 'swim', price: 5, icon: '\uD83C\uDFCA' },
+  { id: 'freischwimmbad_steinach', name: 'Freischwimmbad Steinach', category: 'swim', price: 5, icon: '\uD83C\uDFCA' },
+  { id: 'freischwimmbad_vols', name: 'Freischwimmbad Volser Badl', category: 'swim', price: 5, icon: '\uD83C\uDFCA' },
+  { id: 'schwimmbad_hall', name: 'Schwimmbad Hall in Tirol', category: 'swim', price: 6, icon: '\uD83C\uDFCA' },
+  { id: 'natterersee', name: 'Natterersee', category: 'swim', price: 6, icon: '\uD83C\uDFCA' },
+  { id: 'schwimmbad_inzing', name: 'Schwimmbad Inzing', category: 'swim', price: 5, icon: '\uD83C\uDFCA' },
+  { id: 'schwimmbad_mieders', name: 'Schwimmbad Mieders', category: 'swim', price: 5, icon: '\uD83C\uDFCA' },
+  { id: 'strandperle_seefeld', name: 'Strandperle Seefeld', category: 'swim', price: 7, icon: '\uD83C\uDFCA' },
+  { id: 'badesee_weisslahn', name: 'Badesee Weisslahn', category: 'swim', price: 5, icon: '\uD83C\uDFCA' },
+  { id: 'badeanlage_zirl', name: 'Badeanlage Zirl', category: 'swim', price: 5, icon: '\uD83C\uDFCA' },
 
   // KUNST & KULTUR
   { id: 'audioversum', name: 'Audioversum', category: 'museum', price: 12, icon: '\uD83C\uDFDB\uFE0F' },
   { id: 'glockenmuseum', name: 'Glockenmuseum Grassmayr', category: 'museum', price: 10, icon: '\uD83C\uDFDB\uFE0F' },
   { id: 'goldenes_dachl', name: 'Museum Goldenes Dachl', category: 'museum', price: 5.50, icon: '\uD83C\uDFDB\uFE0F' },
+  { id: 'museum_voelker', name: 'Museum der V\u00F6lker', category: 'museum', price: 8, icon: '\uD83C\uDFDB\uFE0F' },
   { id: 'muenze_hall', name: 'M\u00FCnze Hall *', category: 'museum', price: 10, icon: '\uD83C\uDFDB\uFE0F', limited: 3 },
   { id: 'hofkirche', name: 'Hofkirche *', category: 'museum', price: 8, icon: '\uD83C\uDFDB\uFE0F', limited: 3 },
   { id: 'tirol_panorama', name: 'Tirol Panorama *', category: 'museum', price: 7, icon: '\uD83C\uDFDB\uFE0F', limited: 3 },
@@ -1316,19 +1351,21 @@ const venues = [
   { id: 'zeughaus', name: 'Zeughaus *', category: 'museum', price: 5, icon: '\uD83C\uDFDB\uFE0F', limited: 3 },
   { id: 'stadtmuseum', name: 'Stadtarchiv/Stadtmuseum IBK', category: 'museum', price: 6, icon: '\uD83C\uDFDB\uFE0F' },
   { id: 'swarovski', name: 'Swarovski Kristallwelten *', category: 'museum', price: 23, icon: '\uD83C\uDFDB\uFE0F', limited: 3 },
+  { id: 'tiroler_abende', name: 'Tiroler Abende Fam. Gundolf *', category: 'museum', price: 35, icon: '\uD83C\uDFDB\uFE0F', limited: 3 },
 ];
 
+// Ticket types 2025/26 season
 const ticketTypes = [
-  { id: 'adult_pre', name: 'Erwachsene (Vorverkauf)', price: 727 },
-  { id: 'adult', name: 'Erwachsene (Regul\u00E4r)', price: 872 },
-  { id: 'u23_pre', name: 'U23 (Vorverkauf)', price: 555 },
-  { id: 'u23', name: 'U23 (Regul\u00E4r)', price: 665 },
-  { id: 'youth_pre', name: 'Jugend (Vorverkauf)', price: 393 },
-  { id: 'youth', name: 'Jugend (Regul\u00E4r)', price: 471 },
-  { id: 'child_pre', name: 'Kinder (Vorverkauf)', price: 262 },
-  { id: 'child', name: 'Kinder (Regul\u00E4r)', price: 314 },
-  { id: 'senior_pre', name: 'Senior 65+ (Vorverkauf)', price: 555 },
-  { id: 'senior', name: 'Senior 65+ (Regul\u00E4r)', price: 665 },
+  { id: 'adult_pre', name: 'Erwachsene (Vorverkauf)', price: 759 },
+  { id: 'adult', name: 'Erwachsene (Regul\u00E4r)', price: 873 },
+  { id: 'u23_pre', name: 'U23 (Vorverkauf)', price: 683 },
+  { id: 'u23', name: 'U23 (Regul\u00E4r)', price: 786 },
+  { id: 'youth_pre', name: 'Jugend (Vorverkauf)', price: 607 },
+  { id: 'youth', name: 'Jugend (Regul\u00E4r)', price: 698 },
+  { id: 'child_pre', name: 'Kinder (Vorverkauf)', price: 395 },
+  { id: 'child', name: 'Kinder (Regul\u00E4r)', price: 454 },
+  { id: 'senior_pre', name: 'Senior 65+ (Vorverkauf)', price: 721 },
+  { id: 'senior', name: 'Senior 65+ (Regul\u00E4r)', price: 829 },
 ];
 
 // ========== STATE ==========
