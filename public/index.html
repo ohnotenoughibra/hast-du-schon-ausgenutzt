@@ -1038,6 +1038,7 @@
           <div style="font-size:18px;font-weight:800;margin-top:10px" id="profileName">-</div>
           <div style="font-size:12px;color:var(--ftt-text-light);font-weight:500" id="profileEmail">-</div>
         </div>
+        <button class="btn-outline" onclick="openEditNameModal()" style="margin-top:0;font-size:13px">Name bearbeiten</button>
       </div>
 
       <button class="btn-danger-outline" onclick="handleLogout()">Abmelden</button>
@@ -1230,6 +1231,24 @@
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ftt-text-light);margin-bottom:8px">Teile diesen Code mit Freunden</div>
       <div id="codeResultValue" style="font-size:36px;font-weight:900;letter-spacing:6px;color:var(--ftt-blue-deep);margin-bottom:16px;padding:20px;background:#F0F9FC;border-radius:12px">-</div>
       <button class="btn-submit" onclick="copyGroupCode()">Code kopieren</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT NAME MODAL -->
+<div class="modal-overlay" id="editNameModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Name bearbeiten</div>
+      <button class="modal-close" onclick="closeModal('editNameModal')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Anzeigename</label>
+        <input type="text" class="form-input" id="editNameInput" placeholder="Dein Name" maxlength="50">
+      </div>
+      <button class="btn-submit" onclick="handleEditName()">Speichern</button>
     </div>
   </div>
 </div>
@@ -1851,7 +1870,7 @@ function closeModal(id) {
 }
 
 // Click outside modals to close
-['addModal', 'settingsModal', 'authModal', 'createGroupModal', 'joinGroupModal', 'codeResultModal'].forEach(id => {
+['addModal', 'settingsModal', 'authModal', 'createGroupModal', 'joinGroupModal', 'codeResultModal', 'editNameModal'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target === this) closeModal(id);
   });
@@ -1897,6 +1916,27 @@ async function handleJoinGroup() {
     closeModal('joinGroupModal');
     showToast('Gruppe "' + data.group.name + '" beigetreten!');
     loadMyGroups();
+  } catch(e) {
+    alert(e.message);
+  }
+}
+
+function openEditNameModal() {
+  document.getElementById('editNameInput').value = currentUser ? currentUser.displayName : '';
+  document.getElementById('editNameModal').classList.add('active');
+  setTimeout(() => document.getElementById('editNameInput').focus(), 300);
+}
+
+async function handleEditName() {
+  const name = document.getElementById('editNameInput').value.trim();
+  if (!name) return;
+  try {
+    const data = await api('/api/auth?action=settings', { method: 'POST', body: { displayName: name } });
+    currentUser = data.user;
+    updateAuthUI();
+    closeModal('editNameModal');
+    markLeaderboardDirty();
+    showToast('Name ge\u00E4ndert!');
   } catch(e) {
     alert(e.message);
   }
