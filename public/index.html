@@ -1053,6 +1053,67 @@
     .chip { min-width: 0; }
   }
 
+  /* ========== ADMIN PANEL ========== */
+  .admin-user-card {
+    background: var(--ftt-card);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .admin-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ftt-blue), var(--ftt-blue-deep));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .admin-user-info { flex: 1; min-width: 0; }
+
+  .admin-user-name {
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .admin-user-meta {
+    font-size: 11px;
+    color: var(--ftt-text-light);
+    font-weight: 500;
+  }
+
+  .admin-user-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .admin-btn {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .admin-btn-reset { background: #FFF3E0; color: var(--ftt-orange-dark); }
+  .admin-btn-delete { background: #FDE8E8; color: var(--ftt-danger); }
+
   /* ========== DAILY COST TICKER ========== */
   .daily-cost-card {
     background: var(--ftt-card);
@@ -1455,6 +1516,15 @@
       </div>
 
       <button class="btn-danger-outline" onclick="handleLogout()">Abmelden</button>
+
+      <!-- Admin Panel -->
+      <div id="adminPanel" style="display:none;margin-top:24px">
+        <div class="section-header" style="margin-bottom:14px">
+          <div class="section-title">Admin</div>
+          <button class="section-link" onclick="loadAdminUsers()">Aktualisieren</button>
+        </div>
+        <div id="adminUserList"></div>
+      </div>
     </div>
   </div>
 
@@ -2032,6 +2102,7 @@ function updateAuthUI() {
     document.getElementById('sidebarUser').onclick = () => switchView('viewProfile');
 
     loadMyGroups();
+    checkAdmin();
   } else {
     btn.textContent = 'Anmelden';
     btn.onclick = openAuthModal;
@@ -2287,6 +2358,74 @@ async function handleResetPassword() {
   } finally {
     btn.disabled = false;
     btn.textContent = 'Passwort \u00E4ndern';
+  }
+}
+
+// ========== ADMIN PANEL ==========
+let isAdminUser = false;
+
+async function checkAdmin() {
+  if (!currentUser) return;
+  try {
+    await api('/api/auth?action=admin-users');
+    isAdminUser = true;
+    document.getElementById('adminPanel').style.display = 'block';
+    loadAdminUsers();
+  } catch(e) {
+    isAdminUser = false;
+    document.getElementById('adminPanel').style.display = 'none';
+  }
+}
+
+async function loadAdminUsers() {
+  if (!isAdminUser) return;
+  const list = document.getElementById('adminUserList');
+  list.innerHTML = '<div style="text-align:center;padding:20px"><span class="loading-spinner" style="border-color:rgba(0,0,0,0.1);border-top-color:var(--ftt-blue);width:20px;height:20px"></span></div>';
+
+  try {
+    const data = await api('/api/auth?action=admin-users');
+    list.innerHTML = data.users.map(u => {
+      const initial = u.display_name.charAt(0).toUpperCase();
+      const value = parseFloat(u.total_value).toFixed(0);
+      const date = new Date(u.created_at).toLocaleDateString('de-AT', { day: '2-digit', month: 'short', year: '2-digit' });
+      const isSelf = currentUser && u.id === currentUser.id;
+      return `<div class="admin-user-card">
+        <div class="admin-user-avatar">${esc(initial)}</div>
+        <div class="admin-user-info">
+          <div class="admin-user-name">${esc(u.display_name)}${isSelf ? ' (du)' : ''}</div>
+          <div class="admin-user-meta">${esc(u.email)} &middot; \u20AC${value} &middot; ${u.activity_count} Akt. &middot; seit ${date}</div>
+        </div>
+        <div class="admin-user-actions">
+          ${isSelf ? '' : `<button class="admin-btn admin-btn-reset" onclick="adminResetPassword(${u.id}, '${esc(u.display_name)}')">Reset PW</button>`}
+          ${isSelf ? '' : `<button class="admin-btn admin-btn-delete" onclick="adminDeleteUser(${u.id}, '${esc(u.display_name)}')">L\u00F6schen</button>`}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = '<div class="empty-state-sub">Fehler beim Laden</div>';
+  }
+}
+
+async function adminResetPassword(userId, name) {
+  const newPw = prompt(`Neues Passwort f\u00FCr ${name}:`);
+  if (!newPw) return;
+  if (newPw.length < 6) { showToast('Mind. 6 Zeichen'); return; }
+  try {
+    await api('/api/auth?action=admin-reset', { method: 'POST', body: { userId, newPassword: newPw } });
+    showToast(`Passwort f\u00FCr ${name} zur\u00FCckgesetzt`);
+  } catch(e) {
+    showToast('Fehler: ' + e.message);
+  }
+}
+
+async function adminDeleteUser(userId, name) {
+  if (!confirm(`${name} wirklich l\u00F6schen? Alle Daten gehen verloren.`)) return;
+  try {
+    await api('/api/auth?action=admin-delete-user', { method: 'POST', body: { userId } });
+    showToast(`${name} gel\u00F6scht`);
+    loadAdminUsers();
+  } catch(e) {
+    showToast('Fehler: ' + e.message);
   }
 }
 

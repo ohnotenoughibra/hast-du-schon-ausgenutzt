@@ -250,5 +250,71 @@ module.exports = async function handler(req, res) {
     }
   }
 
+  // ========== ADMIN ACTIONS ==========
+
+  // GET /api/auth?action=admin-users
+  if (req.method === 'GET' && action === 'admin-users') {
+    const payload = verifyToken(req);
+    if (!payload) return res.status(401).json({ error: 'Nicht angemeldet' });
+    if (!(await isAdmin(sql, payload.userId))) return res.status(403).json({ error: 'Kein Zugriff' });
+
+    try {
+      const rows = await sql`
+        SELECT u.id, u.email, u.display_name, u.ticket_type, u.created_at,
+          (SELECT COUNT(*) FROM activities WHERE user_id = u.id) as activity_count,
+          (SELECT COALESCE(SUM(price), 0) FROM activities WHERE user_id = u.id) as total_value
+        FROM users u ORDER BY u.created_at DESC
+      `;
+      return res.status(200).json({ users: rows });
+    } catch (e) {
+      return res.status(500).json({ error: 'Fehler beim Laden' });
+    }
+  }
+
+  // POST /api/auth?action=admin-reset
+  if (action === 'admin-reset') {
+    const payload = verifyToken(req);
+    if (!payload) return res.status(401).json({ error: 'Nicht angemeldet' });
+    if (!(await isAdmin(sql, payload.userId))) return res.status(403).json({ error: 'Kein Zugriff' });
+
+    const { userId, newPassword } = req.body || {};
+    if (!userId || !newPassword) return res.status(400).json({ error: 'User-ID und Passwort erforderlich' });
+    if (newPassword.length < 6) return res.status(400).json({ error: 'Passwort mind. 6 Zeichen' });
+
+    try {
+      const hash = await bcrypt.hash(newPassword, 10);
+      const rows = await sql`UPDATE users SET password_hash = ${hash} WHERE id = ${userId} RETURNING email, display_name`;
+      if (rows.length === 0) return res.status(404).json({ error: 'Benutzer nicht gefunden' });
+      return res.status(200).json({ ok: true, user: rows[0] });
+    } catch (e) {
+      return res.status(500).json({ error: 'Fehler beim Zurücksetzen' });
+    }
+  }
+
+  // POST /api/auth?action=admin-delete-user
+  if (action === 'admin-delete-user') {
+    const payload = verifyToken(req);
+    if (!payload) return res.status(401).json({ error: 'Nicht angemeldet' });
+    if (!(await isAdmin(sql, payload.userId))) return res.status(403).json({ error: 'Kein Zugriff' });
+
+    const { userId } = req.body || {};
+    if (!userId) return res.status(400).json({ error: 'User-ID erforderlich' });
+    if (userId === payload.userId) return res.status(400).json({ error: 'Du kannst dich nicht selbst löschen' });
+
+    try {
+      await sql`DELETE FROM users WHERE id = ${userId}`;
+      return res.status(200).json({ ok: true });
+    } catch (e) {
+      return res.status(500).json({ error: 'Fehler beim Löschen' });
+    }
+  }
+
   res.status(400).json({ error: 'Unknown action' });
 };
+
+async function isAdmin(sql, userId) {
+  const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase());
+  const rows = await sql`SELECT email FROM users WHERE id = ${userId}`;
+  if (rows.length === 0) return false;
+  return adminEmails.includes(rows[0].email.toLowerCase());
+}
