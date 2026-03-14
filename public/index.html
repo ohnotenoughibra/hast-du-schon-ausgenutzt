@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Hast du schon ausgenutzt? | Freizeitticket Tirol Tracker</title>
+<meta name="description" content="Wie viel Wert hast du aus deinem Freizeitticket Tirol rausgeholt? Tracke deine Aktivitäten und sieh live, ob sich dein Ticket lohnt.">
+<meta name="theme-color" content="#3EAACC">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FTT Tracker">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<!-- Open Graph -->
+<meta property="og:title" content="Hast du schon ausgenutzt?">
+<meta property="og:description" content="Freizeitticket Tirol Value Tracker - Tracke deine Ski-, Schwimm- und Kulturbesuche">
+<meta property="og:type" content="website">
+<meta property="og:image" content="/icon-512.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap');
+
+  :root {
+    --ftt-orange: #E8871E;
+    --ftt-orange-dark: #D07518;
+    --ftt-blue: #3EAACC;
+    --ftt-blue-dark: #2D8FAD;
+    --ftt-blue-deep: #1B7A9A;
+    --ftt-white: #FFFFFF;
+    --ftt-bg: #F4F7FA;
+    --ftt-card: #FFFFFF;
+    --ftt-text: #2C3E50;
+    --ftt-text-light: #7F8C9B;
+    --ftt-success: #27AE60;
+    --ftt-danger: #E74C3C;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Montserrat', -apple-system, sans-serif;
+    background: var(--ftt-bg);
+    color: var(--ftt-text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ========== HEADER ========== */
+  .header {
+    background: linear-gradient(135deg, var(--ftt-blue) 0%, var(--ftt-blue-deep) 100%);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(27,122,154,0.3);
+  }
+
+  .header-inner {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-shield {
+    width: 44px;
+    height: 52px;
+    position: relative;
+  }
+
+  .logo-shield svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .header-title {
+    color: var(--ftt-white);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.5px;
+  }
+
+  .header-title span {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    opacity: 0.8;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .header-settings {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: background 0.2s;
+  }
+
+  .header-settings:hover { background: rgba(255,255,255,0.25); }
+
+  /* ========== MAIN ========== */
+  .app {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px 16px 100px;
+  }
+
+  /* ========== HERO CARD ========== */
+  .hero-card {
+    background: linear-gradient(145deg, var(--ftt-orange) 0%, var(--ftt-orange-dark) 100%);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(232,135,30,0.35);
+    margin-bottom: 20px;
+  }
+
+  .hero-card::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 160px;
+    height: 160px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+
+  .hero-card::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    left: -30px;
+    width: 120px;
+    height: 120px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+
+  .hero-question {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.9;
+    margin-bottom: 8px;
+  }
+
+  .hero-value {
+    font-size: 56px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-of {
+    font-size: 16px;
+    font-weight: 600;
+    opacity: 0.85;
+    margin-bottom: 20px;
+  }
+
+  .progress-bar-bg {
+    width: 100%;
+    height: 12px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: white;
+    border-radius: 6px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+    min-width: 2%;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-stat {
+    text-align: center;
+  }
+
+  .hero-stat-value {
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  .hero-stat-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.8;
+  }
+
+  /* ========== BREAKDOWN CHIPS ========== */
+  .breakdown-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .breakdown-row::-webkit-scrollbar { display: none; }
+
+  .chip {
+    background: var(--ftt-card);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    min-width: 120px;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+  }
+
+  .chip-icon {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .chip-value {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--ftt-text);
+  }
+
+  .chip-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ftt-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ========== ACTIVITY LOG ========== */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ftt-text);
+  }
+
+  .section-link {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ftt-blue);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .activity-item {
+    background: var(--ftt-card);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: var(--shadow);
+    transition: transform 0.15s;
+    position: relative;
+  }
+
+  .activity-item:active { transform: scale(0.98); }
+
+  .activity-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .activity-icon-wrap.ski { background: #EBF5FF; }
+  .activity-icon-wrap.swim { background: #E8F8F5; }
+  .activity-icon-wrap.hike { background: #FFF3E0; }
+  .activity-icon-wrap.sled { background: #FCE4EC; }
+  .activity-icon-wrap.skate { background: #F3E5F5; }
+  .activity-icon-wrap.museum { background: #FFF8E1; }
+  .activity-icon-wrap.cable { background: #E0F2F1; }
+
+  .activity-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .activity-name {
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .activity-meta {
+    font-size: 11px;
+    color: var(--ftt-text-light);
+    font-weight: 500;
+  }
+
+  .activity-value {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .activity-value-amount {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ftt-success);
+  }
+
+  .activity-delete {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+    line-height: 1;
+    border-radius: 4px;
+    transition: color 0.2s;
+  }
+
+  .activity-delete:hover { color: var(--ftt-danger); }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--ftt-text-light);
+  }
+
+  .empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  .empty-state-text {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .empty-state-sub {
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  /* ========== FAB ========== */
+  .fab {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--ftt-orange), var(--ftt-orange-dark));
+    color: white;
+    border: none;
+    border-radius: 28px;
+    padding: 16px 32px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(232,135,30,0.45);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    z-index: 90;
+    letter-spacing: 0.3px;
+  }
+
+  .fab:hover {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 8px 32px rgba(232,135,30,0.55);
+  }
+
+  .fab:active {
+    transform: translateX(-50%) scale(0.96);
+  }
+
+  /* ========== MODAL ========== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal-handle {
+    width: 36px;
+    height: 4px;
+    background: #DDE1E6;
+    border-radius: 2px;
+    margin: 12px auto 0;
+  }
+
+  .modal-header {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #F0F2F5;
+  }
+
+  .modal-title {
+    font-size: 18px;
+    font-weight: 800;
+  }
+
+  .modal-close {
+    background: #F0F2F5;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ftt-text);
+  }
+
+  .modal-body {
+    padding: 20px 24px 32px;
+  }
+
+  /* ========== FORM ========== */
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ftt-text-light);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .form-select, .form-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #E8ECF0;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ftt-text);
+    background: white;
+    appearance: none;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .form-select:focus, .form-input:focus {
+    border-color: var(--ftt-blue);
+  }
+
+  .select-wrap {
+    position: relative;
+  }
+
+  .select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: var(--ftt-text-light);
+    pointer-events: none;
+  }
+
+  .venue-search {
+    margin-bottom: 10px;
+  }
+
+  .venue-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 2px solid #E8ECF0;
+    border-radius: var(--radius-sm);
+    background: white;
+  }
+
+  .venue-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.15s;
+    border-bottom: 1px solid #F5F5F5;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .venue-option:last-child { border-bottom: none; }
+  .venue-option:hover { background: #F8FAFE; }
+  .venue-option.selected { background: #EBF5FF; color: var(--ftt-blue-deep); }
+
+  .venue-price {
+    font-size: 12px;
+    color: var(--ftt-success);
+    font-weight: 700;
+  }
+
+  .venue-category {
+    font-size: 10px;
+    color: var(--ftt-text-light);
+    margin-left: 4px;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .form-row .form-group { flex: 1; }
+
+  .btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--ftt-blue), var(--ftt-blue-deep));
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(62,170,204,0.3);
+    transition: transform 0.15s;
+    margin-top: 8px;
+  }
+
+  .btn-submit:hover { transform: translateY(-1px); }
+  .btn-submit:active { transform: scale(0.98); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .value-preview {
+    background: linear-gradient(135deg, #F0FFF0, #E8F5E9);
+    border: 2px solid #C8E6C9;
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .value-preview.show { display: block; }
+
+  .value-preview-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #2E7D32;
+  }
+
+  .value-preview-amount {
+    font-size: 32px;
+    font-weight: 900;
+    color: #1B5E20;
+  }
+
+  /* ========== SETTINGS MODAL ========== */
+  .ticket-type-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .ticket-type-card {
+    border: 2px solid #E8ECF0;
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .ticket-type-card:hover { border-color: var(--ftt-blue); }
+  .ticket-type-card.selected {
+    border-color: var(--ftt-orange);
+    background: #FFF8F0;
+  }
+
+  .ticket-type-name {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .ticket-type-price {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ftt-orange);
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (min-width: 600px) {
+    .app { padding: 24px 20px 100px; }
+    .hero-value { font-size: 64px; }
+  }
+
+  /* ========== CONFETTI ========== */
+  .confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-shield">
+        <svg viewBox="0 0 80 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 4h72v52c0 22-36 36-36 36S4 78 4 56V4z" fill="#E8871E" stroke="white" stroke-width="4"/>
+          <text x="40" y="32" text-anchor="middle" fill="white" font-family="Montserrat,sans-serif" font-size="11" font-weight="800">FREIZEIT</text>
+          <text x="40" y="50" text-anchor="middle" fill="white" font-family="Montserrat,sans-serif" font-size="14" font-weight="900">TICKET</text>
+          <text x="40" y="66" text-anchor="middle" fill="white" font-family="Montserrat,sans-serif" font-size="11" font-weight="800">TIROL</text>
+        </svg>
+      </div>
+      <div class="header-title">
+        Hast du schon ausgenutzt?
+        <span>Freizeitticket Tracker</span>
+      </div>
+    </div>
+    <button class="header-settings" onclick="openSettings()" title="Einstellungen">⚙</button>
+  </div>
+</div>
+
+<!-- APP CONTENT -->
+<div class="app">
+
+  <!-- HERO -->
+  <div class="hero-card">
+    <div class="hero-question">Dein Ticketwert</div>
+    <div class="hero-value" id="heroValue">€0</div>
+    <div class="hero-of">von <span id="heroTicketPrice">€727</span> ausgenutzt</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-value" id="statActivities">0</div>
+        <div class="hero-stat-label">Aktivitäten</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value" id="statPercent">0%</div>
+        <div class="hero-stat-label">Ausgenutzt</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-value" id="statAvg">€0</div>
+        <div class="hero-stat-label">Ø pro Besuch</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BREAKDOWN CHIPS -->
+  <div class="breakdown-row" id="breakdownRow">
+    <div class="chip">
+      <div class="chip-icon">⛷️</div>
+      <div class="chip-value" id="chipSki">€0</div>
+      <div class="chip-label">Skifahren</div>
+    </div>
+    <div class="chip">
+      <div class="chip-icon">🏊</div>
+      <div class="chip-value" id="chipSwim">€0</div>
+      <div class="chip-label">Schwimmen</div>
+    </div>
+    <div class="chip">
+      <div class="chip-icon">🥾</div>
+      <div class="chip-value" id="chipHike">€0</div>
+      <div class="chip-label">Bergbahnen</div>
+    </div>
+    <div class="chip">
+      <div class="chip-icon">🛷</div>
+      <div class="chip-value" id="chipSled">€0</div>
+      <div class="chip-label">Rodeln</div>
+    </div>
+    <div class="chip">
+      <div class="chip-icon">⛸️</div>
+      <div class="chip-value" id="chipSkate">€0</div>
+      <div class="chip-label">Eislaufen</div>
+    </div>
+    <div class="chip">
+      <div class="chip-icon">🏛️</div>
+      <div class="chip-value" id="chipMuseum">€0</div>
+      <div class="chip-label">Kultur</div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY LOG -->
+  <div class="section-header">
+    <div class="section-title">Letzte Aktivitäten</div>
+    <a class="section-link" id="clearAllBtn" onclick="clearAll()" style="display:none">Alle löschen</a>
+  </div>
+  <div class="activity-list" id="activityList">
+    <div class="empty-state">
+      <div class="empty-state-icon">🏔️</div>
+      <div class="empty-state-text">Noch keine Aktivitäten</div>
+      <div class="empty-state-sub">Tippe + um deine erste Aktivität hinzuzufügen</div>
+    </div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openAddModal()">
+  <span style="font-size:20px">+</span> Aktivität hinzufügen
+</button>
+
+<!-- ADD ACTIVITY MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Aktivität hinzufügen</div>
+      <button class="modal-close" onclick="closeAddModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Category -->
+      <div class="form-group">
+        <label class="form-label">Kategorie</label>
+        <div class="select-wrap">
+          <select class="form-select" id="categorySelect" onchange="filterVenues()">
+            <option value="">Alle Kategorien</option>
+            <option value="ski">⛷️ Ski & Snowboard</option>
+            <option value="swim">🏊 Schwimmen</option>
+            <option value="cable">🚡 Bergbahnen (Sommer)</option>
+            <option value="sled">🛷 Rodeln</option>
+            <option value="skate">⛸️ Eislaufen</option>
+            <option value="museum">🏛️ Kunst & Kultur</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Venue Search + List -->
+      <div class="form-group">
+        <label class="form-label">Ort / Anlage</label>
+        <input type="text" class="form-input venue-search" id="venueSearch" placeholder="Suchen..." oninput="filterVenues()">
+        <div class="venue-list" id="venueList"></div>
+      </div>
+
+      <!-- Date + Duration -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Datum</label>
+          <input type="date" class="form-input" id="activityDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dauer (Std.)</label>
+          <input type="number" class="form-input" id="activityHours" value="4" min="1" max="12" step="0.5">
+        </div>
+      </div>
+
+      <!-- Value Preview -->
+      <div class="value-preview" id="valuePreview">
+        <div class="value-preview-label">Ersparnis</div>
+        <div class="value-preview-amount" id="valuePreviewAmount">€0</div>
+      </div>
+
+      <button class="btn-submit" id="submitBtn" onclick="addActivity()" disabled>Hinzufügen</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Ticket auswählen</div>
+      <button class="modal-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Dein Ticket (2025/26)</label>
+        <div class="ticket-type-cards" id="ticketTypeCards"></div>
+      </div>
+      <button class="btn-submit" onclick="saveSettings()" style="margin-top:16px">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFETTI -->
+<div class="confetti-container" id="confetti"></div>
+
+<script>
+// ========== VENUE DATABASE ==========
+const venues = [
+  // SKI & SNOWBOARD - Major resorts
+  { id: 'axamer', name: 'Axamer Lizum', category: 'ski', price: 58, icon: '⛷️' },
+  { id: 'stubaier', name: 'Stubaier Gletscher', category: 'ski', price: 72, icon: '⛷️' },
+  { id: 'schlick', name: 'Schlick 2000', category: 'ski', price: 56, icon: '⛷️' },
+  { id: 'kuehtai', name: 'Kühtai', category: 'ski', price: 55, icon: '⛷️' },
+  { id: 'nordkette_ski', name: 'Nordkettenbahnen (Ski)', category: 'ski', price: 46, icon: '⛷️' },
+  { id: 'muttereralm', name: 'Muttereralm', category: 'ski', price: 42, icon: '⛷️' },
+  { id: 'patscherkofel', name: 'Patscherkofel', category: 'ski', price: 52, icon: '⛷️' },
+  { id: 'rangger', name: 'Rangger Köpfl', category: 'ski', price: 44, icon: '⛷️' },
+  { id: 'glungezer', name: 'Glungezer', category: 'ski', price: 48, icon: '⛷️' },
+  { id: 'kappl', name: 'Kappl', category: 'ski', price: 56, icon: '⛷️' },
+  { id: 'ischgl', name: 'Ischgl / Silvretta Arena *', category: 'ski', price: 76, icon: '⛷️', limited: 3 },
+  { id: 'galtueer', name: 'Galtür – Silvapark', category: 'ski', price: 50, icon: '⛷️' },
+  { id: 'hochoetz', name: 'Hochoetz', category: 'ski', price: 53, icon: '⛷️' },
+  { id: 'bergeralm', name: 'Bergeralm Steinach', category: 'ski', price: 50, icon: '⛷️' },
+  { id: 'serles', name: 'Serlesbahnen Mieders', category: 'ski', price: 38, icon: '⛷️' },
+  { id: 'elfer', name: 'Elferbahnen Neustift', category: 'ski', price: 42, icon: '⛷️' },
+  { id: 'rosshütte', name: 'Bergbahnen Rosshütte Seefeld', category: 'ski', price: 54, icon: '⛷️' },
+  { id: 'skilift_arlberg', name: 'Ski Arlberg *', category: 'ski', price: 76, icon: '⛷️', limited: 3 },
+  // Small lifts
+  { id: 'birkenlift', name: 'Seefeld Birkenlift', category: 'ski', price: 28, icon: '⛷️' },
+  { id: 'geigenbuehel', name: 'Skilift Geigenbühel', category: 'ski', price: 26, icon: '⛷️' },
+  { id: 'trins_lift', name: 'Skilift Trins', category: 'ski', price: 22, icon: '⛷️' },
+  { id: 'sonnenbahn', name: 'Sonnenbahn Milders', category: 'ski', price: 28, icon: '⛷️' },
+  { id: 'stans', name: 'Stans Burglift', category: 'ski', price: 22, icon: '⛷️' },
+  { id: 'vogelsberg', name: 'Vögelsberg Wattens', category: 'ski', price: 20, icon: '⛷️' },
+  { id: 'wildstaettlift', name: 'Wildstättlift Wattenberg', category: 'ski', price: 18, icon: '⛷️' },
+
+  // CABLE CARS / BERGBAHNEN (Summer use)
+  { id: 'nordkette_cable', name: 'Nordkettenbahnen', category: 'cable', price: 39.50, icon: '🚡' },
+  { id: 'patscherkofel_cable', name: 'Patscherkofel Bergbahn', category: 'cable', price: 32, icon: '🚡' },
+  { id: 'muttereralm_cable', name: 'Muttereralm Bahn', category: 'cable', price: 28, icon: '🚡' },
+  { id: 'stubaier_cable', name: 'Stubaier Gletscher Bahn', category: 'cable', price: 52, icon: '🚡' },
+  { id: 'schlick_cable', name: 'Schlick 2000 Bahn', category: 'cable', price: 36, icon: '🚡' },
+  { id: 'elfer_cable', name: 'Elferbahnen', category: 'cable', price: 30, icon: '🚡' },
+  { id: 'serles_cable', name: 'Serlesbahnen', category: 'cable', price: 26, icon: '🚡' },
+  { id: 'glungezer_cable', name: 'Glungezerbahn', category: 'cable', price: 32, icon: '🚡' },
+  { id: 'rangger_cable', name: 'Rangger Köpfl Bahn', category: 'cable', price: 28, icon: '🚡' },
+  { id: 'rosshütte_cable', name: 'Rosshütte Seefeld', category: 'cable', price: 36, icon: '🚡' },
+
+  // RODELN
+  { id: 'muttereralm_rodeln', name: 'Muttereralm Rodelbahn', category: 'sled', price: 28, icon: '🛷' },
+  { id: 'elfer_rodeln', name: 'Elferbahnen Rodelbahn', category: 'sled', price: 26, icon: '🛷' },
+  { id: 'rangger_rodeln', name: 'Rangger Köpfl Rodelbahn', category: 'sled', price: 22, icon: '🛷' },
+
+  // EISLAUFEN
+  { id: 'eis_goetzens', name: 'Eishalle Götzens', category: 'skate', price: 7, icon: '⛸️' },
+  { id: 'eis_steinach', name: 'Eishalle Steinach', category: 'skate', price: 6, icon: '⛸️' },
+  { id: 'eis_baggersee', name: 'Eislaufplatz Baggersee', category: 'skate', price: 5, icon: '⛸️' },
+  { id: 'eis_hoetting', name: 'Eislaufplatz Hötting-West', category: 'skate', price: 5, icon: '⛸️' },
+  { id: 'eis_igls', name: 'Eislaufplatz Igls', category: 'skate', price: 5, icon: '⛸️' },
+  { id: 'eis_schwaz', name: 'Eislaufplatz Schwaz', category: 'skate', price: 6, icon: '⛸️' },
+  { id: 'eis_sillpark', name: 'Eislaufplatz Sillpark', category: 'skate', price: 7, icon: '⛸️' },
+  { id: 'eis_silz', name: 'Eislaufplatz Silz', category: 'skate', price: 5, icon: '⛸️' },
+  { id: 'eis_trins', name: 'Eislaufplatz Trins', category: 'skate', price: 5, icon: '⛸️' },
+  { id: 'eis_zirl', name: 'Eislaufplatz Zirl', category: 'skate', price: 5, icon: '⛸️' },
+
+  // SCHWIMMEN
+  { id: 'hallenbad_amraser', name: 'Hallenbad Amraser Straße', category: 'swim', price: 6.80, icon: '🏊' },
+  { id: 'hallenbad_hoetting', name: 'Hallenbad Höttinger Au', category: 'swim', price: 6.80, icon: '🏊' },
+  { id: 'hallenbad_olymp', name: 'Hallenbad Olympisches Dorf', category: 'swim', price: 6.80, icon: '🏊' },
+  { id: 'telfer_bad', name: 'Telfer Bad *', category: 'swim', price: 8.50, icon: '🏊', limited: 3 },
+
+  // KUNST & KULTUR
+  { id: 'audioversum', name: 'Audioversum', category: 'museum', price: 12, icon: '🏛️' },
+  { id: 'glockenmuseum', name: 'Glockenmuseum Grassmayr', category: 'museum', price: 10, icon: '🏛️' },
+  { id: 'goldenes_dachl', name: 'Museum Goldenes Dachl', category: 'museum', price: 5.50, icon: '🏛️' },
+  { id: 'muenze_hall', name: 'Münze Hall *', category: 'museum', price: 10, icon: '🏛️', limited: 3 },
+  { id: 'hofkirche', name: 'Hofkirche *', category: 'museum', price: 8, icon: '🏛️', limited: 3 },
+  { id: 'tirol_panorama', name: 'Tirol Panorama *', category: 'museum', price: 7, icon: '🏛️', limited: 3 },
+  { id: 'volkskunstmuseum', name: 'Volkskunstmuseum *', category: 'museum', price: 12, icon: '🏛️', limited: 3 },
+  { id: 'zeughaus', name: 'Zeughaus *', category: 'museum', price: 5, icon: '🏛️', limited: 3 },
+  { id: 'stadtmuseum', name: 'Stadtarchiv/Stadtmuseum IBK', category: 'museum', price: 6, icon: '🏛️' },
+  { id: 'swarovski', name: 'Swarovski Kristallwelten *', category: 'museum', price: 23, icon: '🏛️', limited: 3 },
+];
+
+// Ticket types
+const ticketTypes = [
+  { id: 'adult_pre', name: 'Erwachsene (Vorverkauf)', price: 727 },
+  { id: 'adult', name: 'Erwachsene (Regulär)', price: 872 },
+  { id: 'u23_pre', name: 'U23 (Vorverkauf)', price: 555 },
+  { id: 'u23', name: 'U23 (Regulär)', price: 665 },
+  { id: 'youth_pre', name: 'Jugend (Vorverkauf)', price: 393 },
+  { id: 'youth', name: 'Jugend (Regulär)', price: 471 },
+  { id: 'child_pre', name: 'Kinder (Vorverkauf)', price: 262 },
+  { id: 'child', name: 'Kinder (Regulär)', price: 314 },
+  { id: 'senior_pre', name: 'Senior 65+ (Vorverkauf)', price: 555 },
+  { id: 'senior', name: 'Senior 65+ (Regulär)', price: 665 },
+];
+
+// ========== STATE ==========
+let state = {
+  ticketType: 'adult_pre',
+  activities: [],
+  selectedVenueId: null,
+};
+
+// ========== INIT ==========
+function init() {
+  const saved = localStorage.getItem('ftt_state');
+  if (saved) {
+    try {
+      state = JSON.parse(saved);
+    } catch(e) {}
+  }
+  document.getElementById('activityDate').value = new Date().toISOString().split('T')[0];
+  renderVenues();
+  renderActivities();
+  updateDashboard();
+}
+
+function save() {
+  localStorage.setItem('ftt_state', JSON.stringify(state));
+}
+
+// ========== VENUE LIST ==========
+function filterVenues() {
+  renderVenues();
+}
+
+function renderVenues() {
+  const cat = document.getElementById('categorySelect').value;
+  const search = document.getElementById('venueSearch').value.toLowerCase();
+  const list = document.getElementById('venueList');
+
+  let filtered = venues;
+  if (cat) filtered = filtered.filter(v => v.category === cat);
+  if (search) filtered = filtered.filter(v => v.name.toLowerCase().includes(search));
+
+  list.innerHTML = filtered.map(v => {
+    const sel = state.selectedVenueId === v.id ? 'selected' : '';
+    const limitTag = v.limited ? ` <span style="color:#E8871E;font-size:9px">(${v.limited}x)</span>` : '';
+    return `<div class="venue-option ${sel}" onclick="selectVenue('${v.id}')">
+      <span>${v.icon} ${v.name}${limitTag}</span>
+      <span class="venue-price">€${v.price.toFixed(0)}</span>
+    </div>`;
+  }).join('');
+}
+
+function selectVenue(id) {
+  state.selectedVenueId = id;
+  renderVenues();
+
+  const venue = venues.find(v => v.id === id);
+  if (venue) {
+    document.getElementById('valuePreview').classList.add('show');
+    document.getElementById('valuePreviewAmount').textContent = `€${venue.price.toFixed(2)}`;
+    document.getElementById('submitBtn').disabled = false;
+  }
+}
+
+// ========== ADD ACTIVITY ==========
+function addActivity() {
+  const venue = venues.find(v => v.id === state.selectedVenueId);
+  if (!venue) return;
+
+  const date = document.getElementById('activityDate').value;
+  const hours = parseFloat(document.getElementById('activityHours').value) || 4;
+
+  // Check limited venues
+  if (venue.limited) {
+    const count = state.activities.filter(a => a.venueId === venue.id).length;
+    if (count >= venue.limited) {
+      alert(`${venue.name} ist auf ${venue.limited} Besuche limitiert. Du hast bereits ${count} Besuche eingetragen.`);
+      return;
+    }
+  }
+
+  const activity = {
+    id: Date.now(),
+    venueId: venue.id,
+    venueName: venue.name,
+    category: venue.category,
+    icon: venue.icon,
+    price: venue.price,
+    date: date,
+    hours: hours,
+  };
+
+  state.activities.unshift(activity);
+  save();
+
+  closeAddModal();
+  renderActivities();
+  updateDashboard();
+
+  // Check milestone
+  const totalValue = state.activities.reduce((s, a) => s + a.price, 0);
+  const ticketPrice = ticketTypes.find(t => t.id === state.ticketType)?.price || 727;
+  if (totalValue >= ticketPrice && (totalValue - activity.price) < ticketPrice) {
+    celebrate();
+  }
+}
+
+function deleteActivity(id) {
+  state.activities = state.activities.filter(a => a.id !== id);
+  save();
+  renderActivities();
+  updateDashboard();
+}
+
+function clearAll() {
+  if (confirm('Alle Aktivitäten löschen?')) {
+    state.activities = [];
+    save();
+    renderActivities();
+    updateDashboard();
+  }
+}
+
+// ========== RENDER ==========
+function renderActivities() {
+  const list = document.getElementById('activityList');
+  const clearBtn = document.getElementById('clearAllBtn');
+
+  if (state.activities.length === 0) {
+    list.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">🏔️</div>
+      <div class="empty-state-text">Noch keine Aktivitäten</div>
+      <div class="empty-state-sub">Tippe + um deine erste Aktivität hinzuzufügen</div>
+    </div>`;
+    clearBtn.style.display = 'none';
+    return;
+  }
+
+  clearBtn.style.display = 'block';
+
+  list.innerHTML = state.activities.map(a => {
+    const catClass = a.category === 'museum' ? 'museum' : a.category;
+    const d = new Date(a.date);
+    const dateStr = d.toLocaleDateString('de-AT', { day: '2-digit', month: 'short' });
+    return `<div class="activity-item">
+      <div class="activity-icon-wrap ${catClass}">${a.icon}</div>
+      <div class="activity-info">
+        <div class="activity-name">${a.venueName}</div>
+        <div class="activity-meta">${dateStr} · ${a.hours}h</div>
+      </div>
+      <div class="activity-value">
+        <div class="activity-value-amount">+€${a.price.toFixed(0)}</div>
+      </div>
+      <button class="activity-delete" onclick="deleteActivity(${a.id})" title="Löschen">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function updateDashboard() {
+  const ticket = ticketTypes.find(t => t.id === state.ticketType) || ticketTypes[0];
+  const total = state.activities.reduce((s, a) => s + a.price, 0);
+  const pct = Math.min((total / ticket.price) * 100, 100);
+  const avg = state.activities.length > 0 ? total / state.activities.length : 0;
+
+  document.getElementById('heroValue').textContent = `€${total.toFixed(0)}`;
+  document.getElementById('heroTicketPrice').textContent = `€${ticket.price}`;
+  document.getElementById('progressBar').style.width = `${pct}%`;
+  document.getElementById('statActivities').textContent = state.activities.length;
+  document.getElementById('statPercent').textContent = `${Math.round(pct)}%`;
+  document.getElementById('statAvg').textContent = `€${avg.toFixed(0)}`;
+
+  // Category breakdowns
+  const cats = { ski: 0, swim: 0, cable: 0, sled: 0, skate: 0, museum: 0 };
+  state.activities.forEach(a => {
+    if (cats.hasOwnProperty(a.category)) cats[a.category] += a.price;
+  });
+
+  document.getElementById('chipSki').textContent = `€${cats.ski.toFixed(0)}`;
+  document.getElementById('chipSwim').textContent = `€${cats.swim.toFixed(0)}`;
+  document.getElementById('chipHike').textContent = `€${cats.cable.toFixed(0)}`;
+  document.getElementById('chipSled').textContent = `€${cats.sled.toFixed(0)}`;
+  document.getElementById('chipSkate').textContent = `€${cats.skate.toFixed(0)}`;
+  document.getElementById('chipMuseum').textContent = `€${cats.museum.toFixed(0)}`;
+
+  // Color hero based on progress
+  const hero = document.querySelector('.hero-card');
+  if (pct >= 100) {
+    hero.style.background = 'linear-gradient(145deg, #27AE60, #1E8449)';
+    hero.style.boxShadow = '0 8px 32px rgba(39,174,96,0.35)';
+  } else {
+    hero.style.background = '';
+    hero.style.boxShadow = '';
+  }
+}
+
+// ========== MODALS ==========
+function openAddModal() {
+  state.selectedVenueId = null;
+  document.getElementById('categorySelect').value = '';
+  document.getElementById('venueSearch').value = '';
+  document.getElementById('valuePreview').classList.remove('show');
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('activityDate').value = new Date().toISOString().split('T')[0];
+  renderVenues();
+  document.getElementById('addModal').classList.add('active');
+}
+
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('active');
+}
+
+function openSettings() {
+  const container = document.getElementById('ticketTypeCards');
+  container.innerHTML = ticketTypes.map(t => {
+    const sel = state.ticketType === t.id ? 'selected' : '';
+    return `<div class="ticket-type-card ${sel}" onclick="selectTicketType('${t.id}', this)">
+      <span class="ticket-type-name">${t.name}</span>
+      <span class="ticket-type-price">€${t.price}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('settingsModal').classList.add('active');
+}
+
+function closeSettings() {
+  document.getElementById('settingsModal').classList.remove('active');
+}
+
+function selectTicketType(id, el) {
+  state.ticketType = id;
+  document.querySelectorAll('.ticket-type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function saveSettings() {
+  save();
+  updateDashboard();
+  closeSettings();
+}
+
+// Click outside modal to close
+document.getElementById('addModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAddModal();
+});
+document.getElementById('settingsModal').addEventListener('click', function(e) {
+  if (e.target === this) closeSettings();
+});
+
+// ========== CELEBRATION ==========
+function celebrate() {
+  const container = document.getElementById('confetti');
+  const colors = ['#E8871E', '#3EAACC', '#FFD700', '#27AE60', '#E74C3C', '#FFFFFF'];
+
+  for (let i = 0; i < 80; i++) {
+    const confetto = document.createElement('div');
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const x = Math.random() * 100;
+    const delay = Math.random() * 0.5;
+    const size = Math.random() * 8 + 4;
+
+    confetto.style.cssText = `
+      position: absolute;
+      width: ${size}px;
+      height: ${size * 1.5}px;
+      background: ${color};
+      left: ${x}%;
+      top: -20px;
+      border-radius: 2px;
+      animation: confettiFall ${2 + Math.random() * 2}s ease-in ${delay}s forwards;
+    `;
+    container.appendChild(confetto);
+  }
+
+  // Add keyframes if not already added
+  if (!document.getElementById('confettiStyle')) {
+    const style = document.createElement('style');
+    style.id = 'confettiStyle';
+    style.textContent = `
+      @keyframes confettiFall {
+        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  setTimeout(() => { container.innerHTML = ''; }, 4000);
+
+  setTimeout(() => {
+    alert('🎉 Gratulation! Du hast dein Freizeitticket voll ausgenutzt! Ab jetzt sparst du mit jedem Besuch bares Geld!');
+  }, 500);
+}
+
+// ========== SERVICE WORKER ==========
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+// ========== PWA INSTALL PROMPT ==========
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show a subtle install banner
+  const banner = document.createElement('div');
+  banner.id = 'installBanner';
+  banner.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+    background: linear-gradient(135deg, #1B7A9A, #2D8FAD);
+    color: white; padding: 12px 20px; display: flex;
+    align-items: center; justify-content: space-between;
+    font-family: Montserrat, sans-serif; font-size: 13px; font-weight: 600;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  `;
+  banner.innerHTML = `
+    <span>📲 Als App installieren?</span>
+    <div>
+      <button onclick="installApp()" style="background:#E8871E;color:white;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:12px;margin-right:8px">Installieren</button>
+      <button onclick="dismissInstall()" style="background:rgba(255,255,255,0.2);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px">Nein</button>
+    </div>
+  `;
+  document.body.appendChild(banner);
+  // Push content down
+  document.querySelector('.header').style.marginTop = '52px';
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  }
+  dismissInstall();
+}
+
+function dismissInstall() {
+  const banner = document.getElementById('installBanner');
+  if (banner) banner.remove();
+  document.querySelector('.header').style.marginTop = '';
+}
+
+// ========== START ==========
+init();
+</script>
+</body>
+</html>

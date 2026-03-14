@@ -1,0 +1,22 @@
+{
+  "name": "Hast du schon ausgenutzt?",
+  "short_name": "FTT Tracker",
+  "description": "Freizeitticket Tirol Value Tracker - Wie viel hast du schon ausgenutzt?",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F4F7FA",
+  "theme_color": "#3EAACC",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "hast-du-schon-ausgenutzt",
+  "version": "1.0.0",
+  "description": "Freizeitticket Tirol Value Tracker - Track how much value you get from your Freizeitticket",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve public -l 3000",
+    "build": "echo 'Static site - no build needed'"
+  }
+}
