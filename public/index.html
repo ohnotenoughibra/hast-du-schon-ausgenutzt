@@ -1380,7 +1380,7 @@
     </div>
 
     <!-- SHARE BUTTON -->
-    <div style="margin-top:24px;text-align:center" id="shareSection">
+    <div style="margin-top:24px;padding-bottom:60px;text-align:center;display:none" id="shareSection">
       <button class="btn-outline" onclick="openShareModal()" style="margin-top:0;display:inline-flex;align-items:center;gap:8px;width:auto;padding:12px 24px">
         <span style="font-size:18px">&#128247;</span> Fortschritt teilen
       </button>
@@ -2309,6 +2309,7 @@ function updateDashboard() {
   updateDailyCost();
   updateStreak();
   updateDiscover();
+  document.getElementById('shareSection').style.display = state.activities.length > 0 ? 'block' : 'none';
 }
 
 // ========== MODALS ==========
