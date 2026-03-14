@@ -1,10 +1,15 @@
 {
   "name": "hast-du-schon-ausgenutzt",
-  "version": "1.0.0",
-  "description": "Freizeitticket Tirol Value Tracker - Track how much value you get from your Freizeitticket",
+  "version": "2.0.0",
+  "description": "Freizeitticket Tirol Value Tracker with social leaderboard",
   "private": true,
   "scripts": {
-    "dev": "npx serve public -l 3000",
+    "dev": "vercel dev",
     "build": "echo 'Static site - no build needed'"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2"
   }
 }

@@ -2,10 +2,24 @@
   "version": 2,
   "buildCommand": "",
   "outputDirectory": "public",
+  "functions": {
+    "api/**/*.js": {
+      "memory": 256,
+      "maxDuration": 10
+    }
+  },
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "Content-Type", "value": "application/json" }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [

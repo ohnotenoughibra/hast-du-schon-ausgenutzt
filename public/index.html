@@ -103,7 +103,13 @@
     margin-top: 2px;
   }
 
-  .header-settings {
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .header-btn {
     background: rgba(255,255,255,0.15);
     border: none;
     color: white;
@@ -118,7 +124,66 @@
     transition: background 0.2s;
   }
 
-  .header-settings:hover { background: rgba(255,255,255,0.25); }
+  .header-btn:hover { background: rgba(255,255,255,0.25); }
+
+  .header-user-badge {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-user-badge:hover { background: rgba(255,255,255,0.3); }
+
+  /* ========== BOTTOM NAV ========== */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #E8ECF0;
+    display: flex;
+    justify-content: center;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .bottom-nav-inner {
+    max-width: 500px;
+    width: 100%;
+    display: flex;
+  }
+
+  .nav-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0 8px;
+    border: none;
+    background: none;
+    color: var(--ftt-text-light);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
+    gap: 3px;
+  }
+
+  .nav-tab.active { color: var(--ftt-blue-deep); }
+  .nav-tab-icon { font-size: 22px; }
 
   /* ========== MAIN ========== */
   .app {
@@ -126,6 +191,9 @@
     margin: 0 auto;
     padding: 20px 16px 100px;
   }
+
+  .view { display: none; }
+  .view.active { display: block; }
 
   /* ========== HERO CARD ========== */
   .hero-card {
@@ -212,9 +280,7 @@
     z-index: 1;
   }
 
-  .hero-stat {
-    text-align: center;
-  }
+  .hero-stat { text-align: center; }
 
   .hero-stat-value {
     font-size: 20px;
@@ -250,24 +316,9 @@
     flex-shrink: 0;
   }
 
-  .chip-icon {
-    font-size: 22px;
-    margin-bottom: 6px;
-  }
-
-  .chip-value {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--ftt-text);
-  }
-
-  .chip-label {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--ftt-text-light);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+  .chip-icon { font-size: 22px; margin-bottom: 6px; }
+  .chip-value { font-size: 18px; font-weight: 800; color: var(--ftt-text); }
+  .chip-label { font-size: 10px; font-weight: 600; color: var(--ftt-text-light); text-transform: uppercase; letter-spacing: 0.5px; }
 
   /* ========== ACTIVITY LOG ========== */
   .section-header {
@@ -277,11 +328,7 @@
     margin-bottom: 14px;
   }
 
-  .section-title {
-    font-size: 16px;
-    font-weight: 800;
-    color: var(--ftt-text);
-  }
+  .section-title { font-size: 16px; font-weight: 800; color: var(--ftt-text); }
 
   .section-link {
     font-size: 12px;
@@ -331,35 +378,11 @@
   .activity-icon-wrap.museum { background: #FFF8E1; }
   .activity-icon-wrap.cable { background: #E0F2F1; }
 
-  .activity-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .activity-name {
-    font-size: 14px;
-    font-weight: 700;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .activity-meta {
-    font-size: 11px;
-    color: var(--ftt-text-light);
-    font-weight: 500;
-  }
-
-  .activity-value {
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .activity-value-amount {
-    font-size: 16px;
-    font-weight: 800;
-    color: var(--ftt-success);
-  }
+  .activity-info { flex: 1; min-width: 0; }
+  .activity-name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .activity-meta { font-size: 11px; color: var(--ftt-text-light); font-weight: 500; }
+  .activity-value { text-align: right; flex-shrink: 0; }
+  .activity-value-amount { font-size: 16px; font-weight: 800; color: var(--ftt-success); }
 
   .activity-delete {
     position: absolute;
@@ -378,31 +401,15 @@
 
   .activity-delete:hover { color: var(--ftt-danger); }
 
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--ftt-text-light);
-  }
-
-  .empty-state-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-  }
-
-  .empty-state-text {
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  .empty-state-sub {
-    font-size: 12px;
-    margin-top: 4px;
-  }
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--ftt-text-light); }
+  .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state-text { font-size: 14px; font-weight: 600; }
+  .empty-state-sub { font-size: 12px; margin-top: 4px; }
 
   /* ========== FAB ========== */
   .fab {
     position: fixed;
-    bottom: 24px;
+    bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
     background: linear-gradient(135deg, var(--ftt-orange), var(--ftt-orange-dark));
@@ -428,9 +435,7 @@
     box-shadow: 0 8px 32px rgba(232,135,30,0.55);
   }
 
-  .fab:active {
-    transform: translateX(-50%) scale(0.96);
-  }
+  .fab:active { transform: translateX(-50%) scale(0.96); }
 
   /* ========== MODAL ========== */
   .modal-overlay {
@@ -478,10 +483,7 @@
     border-bottom: 1px solid #F0F2F5;
   }
 
-  .modal-title {
-    font-size: 18px;
-    font-weight: 800;
-  }
+  .modal-title { font-size: 18px; font-weight: 800; }
 
   .modal-close {
     background: #F0F2F5;
@@ -497,14 +499,10 @@
     color: var(--ftt-text);
   }
 
-  .modal-body {
-    padding: 20px 24px 32px;
-  }
+  .modal-body { padding: 20px 24px 32px; }
 
   /* ========== FORM ========== */
-  .form-group {
-    margin-bottom: 18px;
-  }
+  .form-group { margin-bottom: 18px; }
 
   .form-label {
     font-size: 12px;
@@ -531,16 +529,12 @@
     outline: none;
   }
 
-  .form-select:focus, .form-input:focus {
-    border-color: var(--ftt-blue);
-  }
+  .form-select:focus, .form-input:focus { border-color: var(--ftt-blue); }
 
-  .select-wrap {
-    position: relative;
-  }
+  .select-wrap { position: relative; }
 
   .select-wrap::after {
-    content: '▾';
+    content: '\25BE';
     position: absolute;
     right: 16px;
     top: 50%;
@@ -550,9 +544,7 @@
     pointer-events: none;
   }
 
-  .venue-search {
-    margin-bottom: 10px;
-  }
+  .venue-search { margin-bottom: 10px; }
 
   .venue-list {
     max-height: 200px;
@@ -578,23 +570,9 @@
   .venue-option:hover { background: #F8FAFE; }
   .venue-option.selected { background: #EBF5FF; color: var(--ftt-blue-deep); }
 
-  .venue-price {
-    font-size: 12px;
-    color: var(--ftt-success);
-    font-weight: 700;
-  }
+  .venue-price { font-size: 12px; color: var(--ftt-success); font-weight: 700; }
 
-  .venue-category {
-    font-size: 10px;
-    color: var(--ftt-text-light);
-    margin-left: 4px;
-  }
-
-  .form-row {
-    display: flex;
-    gap: 12px;
-  }
-
+  .form-row { display: flex; gap: 12px; }
   .form-row .form-group { flex: 1; }
 
   .btn-submit {
@@ -609,13 +587,49 @@
     font-weight: 700;
     cursor: pointer;
     box-shadow: 0 4px 16px rgba(62,170,204,0.3);
-    transition: transform 0.15s;
+    transition: transform 0.15s, opacity 0.2s;
     margin-top: 8px;
   }
 
   .btn-submit:hover { transform: translateY(-1px); }
   .btn-submit:active { transform: scale(0.98); }
   .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-submit.orange {
+    background: linear-gradient(135deg, var(--ftt-orange), var(--ftt-orange-dark));
+    box-shadow: 0 4px 16px rgba(232,135,30,0.3);
+  }
+
+  .btn-outline {
+    width: 100%;
+    padding: 14px;
+    background: white;
+    color: var(--ftt-blue-deep);
+    border: 2px solid var(--ftt-blue);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 10px;
+  }
+
+  .btn-outline:hover { background: #F0F9FC; }
+
+  .btn-danger-outline {
+    width: 100%;
+    padding: 14px;
+    background: white;
+    color: var(--ftt-danger);
+    border: 2px solid #F5C6CB;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+  }
 
   .value-preview {
     background: linear-gradient(135deg, #F0FFF0, #E8F5E9);
@@ -628,27 +642,11 @@
   }
 
   .value-preview.show { display: block; }
-
-  .value-preview-label {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #2E7D32;
-  }
-
-  .value-preview-amount {
-    font-size: 32px;
-    font-weight: 900;
-    color: #1B5E20;
-  }
+  .value-preview-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #2E7D32; }
+  .value-preview-amount { font-size: 32px; font-weight: 900; color: #1B5E20; }
 
   /* ========== SETTINGS MODAL ========== */
-  .ticket-type-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+  .ticket-type-cards { display: flex; flex-direction: column; gap: 10px; }
 
   .ticket-type-card {
     border: 2px solid #E8ECF0;
@@ -662,21 +660,194 @@
   }
 
   .ticket-type-card:hover { border-color: var(--ftt-blue); }
-  .ticket-type-card.selected {
-    border-color: var(--ftt-orange);
-    background: #FFF8F0;
+  .ticket-type-card.selected { border-color: var(--ftt-orange); background: #FFF8F0; }
+  .ticket-type-name { font-size: 14px; font-weight: 700; }
+  .ticket-type-price { font-size: 16px; font-weight: 800; color: var(--ftt-orange); }
+
+  /* ========== LEADERBOARD ========== */
+  .lb-group-card {
+    background: var(--ftt-card);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
   }
 
-  .ticket-type-name {
+  .lb-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .lb-group-name { font-size: 16px; font-weight: 800; }
+
+  .lb-group-code {
+    background: #F0F2F5;
+    padding: 6px 12px;
+    border-radius: 8px;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--ftt-blue-deep);
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: background 0.2s;
   }
 
-  .ticket-type-price {
-    font-size: 16px;
-    font-weight: 800;
-    color: var(--ftt-orange);
+  .lb-group-code:hover { background: #E3E8ED; }
+
+  .lb-entry {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #F0F2F5;
   }
+
+  .lb-entry:last-child { border-bottom: none; }
+
+  .lb-entry.me { background: #F0F9FC; margin: 0 -20px; padding: 12px 20px; border-radius: 8px; }
+
+  .lb-rank {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    flex-shrink: 0;
+    background: #F0F2F5;
+    color: var(--ftt-text-light);
+  }
+
+  .lb-rank.gold { background: #FFF3CD; color: #856404; }
+  .lb-rank.silver { background: #E8ECF0; color: #5A6270; }
+  .lb-rank.bronze { background: #FDEBD0; color: #935116; }
+
+  .lb-name { flex: 1; font-size: 14px; font-weight: 700; }
+  .lb-value { font-size: 16px; font-weight: 800; color: var(--ftt-success); }
+  .lb-percent { font-size: 11px; color: var(--ftt-text-light); font-weight: 600; margin-left: 4px; }
+
+  .lb-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .lb-action-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .lb-action-btn:hover { opacity: 0.85; }
+
+  .lb-share-btn { background: var(--ftt-blue); color: white; }
+  .lb-leave-btn { background: #FDE8E8; color: var(--ftt-danger); }
+
+  /* ========== AUTH BANNER ========== */
+  .auth-banner {
+    background: linear-gradient(135deg, #1B7A9A, #2D8FAD);
+    border-radius: var(--radius);
+    padding: 20px;
+    color: white;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .auth-banner-title { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+  .auth-banner-text { font-size: 12px; opacity: 0.9; margin-bottom: 14px; line-height: 1.5; }
+
+  .auth-banner-btn {
+    background: white;
+    color: var(--ftt-blue-deep);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ========== AUTH FORM ========== */
+  .auth-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    background: #F0F2F5;
+    border-radius: 10px;
+    padding: 3px;
+  }
+
+  .auth-tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ftt-text-light);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+
+  .auth-tab.active {
+    background: white;
+    color: var(--ftt-text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .auth-error {
+    background: #FDE8E8;
+    color: var(--ftt-danger);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .auth-error.show { display: block; }
+
+  .import-banner {
+    background: #FFF8F0;
+    border: 2px solid #FDEBD0;
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .import-banner-title { font-size: 13px; font-weight: 700; color: var(--ftt-orange-dark); margin-bottom: 4px; }
+  .import-banner-text { font-size: 11px; color: var(--ftt-text-light); margin-bottom: 12px; }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ========== RESPONSIVE ========== */
   @media (min-width: 600px) {
@@ -693,6 +864,31 @@
     height: 100%;
     pointer-events: none;
     z-index: 999;
+  }
+
+  /* ========== TOAST ========== */
+  .toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ftt-text);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    z-index: 300;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
 </style>
 </head>
@@ -715,123 +911,192 @@
         <span>Freizeitticket Tracker</span>
       </div>
     </div>
-    <button class="header-settings" onclick="openSettings()" title="Einstellungen">⚙</button>
+    <div class="header-actions">
+      <button class="header-btn" onclick="openSettings()" title="Einstellungen">&#9881;</button>
+      <button class="header-user-badge" id="headerUserBtn" onclick="openAuthModal()">Anmelden</button>
+    </div>
   </div>
 </div>
 
 <!-- APP CONTENT -->
 <div class="app">
 
-  <!-- HERO -->
-  <div class="hero-card">
-    <div class="hero-question">Dein Ticketwert</div>
-    <div class="hero-value" id="heroValue">€0</div>
-    <div class="hero-of">von <span id="heroTicketPrice">€727</span> ausgenutzt</div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+  <!-- ===== TRACKER VIEW ===== -->
+  <div class="view active" id="viewTracker">
+    <!-- Auth Banner (shown when not logged in) -->
+    <div class="auth-banner" id="authBanner">
+      <div class="auth-banner-title">Melde dich an & fordere Freunde heraus!</div>
+      <div class="auth-banner-text">Speichere deine Daten in der Cloud und vergleiche deinen Fortschritt mit Freunden in einer Rangliste.</div>
+      <button class="auth-banner-btn" onclick="openAuthModal()">Konto erstellen</button>
     </div>
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="hero-stat-value" id="statActivities">0</div>
-        <div class="hero-stat-label">Aktivitäten</div>
+
+    <!-- HERO -->
+    <div class="hero-card">
+      <div class="hero-question">Dein Ticketwert</div>
+      <div class="hero-value" id="heroValue">&euro;0</div>
+      <div class="hero-of">von <span id="heroTicketPrice">&euro;727</span> ausgenutzt</div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
       </div>
-      <div class="hero-stat">
-        <div class="hero-stat-value" id="statPercent">0%</div>
-        <div class="hero-stat-label">Ausgenutzt</div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value" id="statActivities">0</div>
+          <div class="hero-stat-label">Aktivit&auml;ten</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" id="statPercent">0%</div>
+          <div class="hero-stat-label">Ausgenutzt</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" id="statAvg">&euro;0</div>
+          <div class="hero-stat-label">&Oslash; pro Besuch</div>
+        </div>
       </div>
-      <div class="hero-stat">
-        <div class="hero-stat-value" id="statAvg">€0</div>
-        <div class="hero-stat-label">Ø pro Besuch</div>
+    </div>
+
+    <!-- BREAKDOWN CHIPS -->
+    <div class="breakdown-row" id="breakdownRow">
+      <div class="chip"><div class="chip-icon">&#9975;&#65039;</div><div class="chip-value" id="chipSki">&euro;0</div><div class="chip-label">Skifahren</div></div>
+      <div class="chip"><div class="chip-icon">&#127946;</div><div class="chip-value" id="chipSwim">&euro;0</div><div class="chip-label">Schwimmen</div></div>
+      <div class="chip"><div class="chip-icon">&#129406;</div><div class="chip-value" id="chipHike">&euro;0</div><div class="chip-label">Bergbahnen</div></div>
+      <div class="chip"><div class="chip-icon">&#128759;</div><div class="chip-value" id="chipSled">&euro;0</div><div class="chip-label">Rodeln</div></div>
+      <div class="chip"><div class="chip-icon">&#9976;&#65039;</div><div class="chip-value" id="chipSkate">&euro;0</div><div class="chip-label">Eislaufen</div></div>
+      <div class="chip"><div class="chip-icon">&#127963;&#65039;</div><div class="chip-value" id="chipMuseum">&euro;0</div><div class="chip-label">Kultur</div></div>
+    </div>
+
+    <!-- ACTIVITY LOG -->
+    <div class="section-header">
+      <div class="section-title">Letzte Aktivit&auml;ten</div>
+      <a class="section-link" id="clearAllBtn" onclick="clearAll()" style="display:none">Alle l&ouml;schen</a>
+    </div>
+    <div class="activity-list" id="activityList">
+      <div class="empty-state">
+        <div class="empty-state-icon">&#127956;&#65039;</div>
+        <div class="empty-state-text">Noch keine Aktivit&auml;ten</div>
+        <div class="empty-state-sub">Tippe + um deine erste Aktivit&auml;t hinzuzuf&uuml;gen</div>
       </div>
     </div>
   </div>
 
-  <!-- BREAKDOWN CHIPS -->
-  <div class="breakdown-row" id="breakdownRow">
-    <div class="chip">
-      <div class="chip-icon">⛷️</div>
-      <div class="chip-value" id="chipSki">€0</div>
-      <div class="chip-label">Skifahren</div>
+  <!-- ===== LEADERBOARD VIEW ===== -->
+  <div class="view" id="viewLeaderboard">
+    <div class="section-header" style="margin-bottom:16px">
+      <div class="section-title">Rangliste</div>
     </div>
-    <div class="chip">
-      <div class="chip-icon">🏊</div>
-      <div class="chip-value" id="chipSwim">€0</div>
-      <div class="chip-label">Schwimmen</div>
+
+    <!-- Not logged in state -->
+    <div id="lbNotLoggedIn">
+      <div class="auth-banner">
+        <div class="auth-banner-title">Rangliste freischalten</div>
+        <div class="auth-banner-text">Melde dich an, erstelle eine Gruppe und teile den Code mit Freunden, um euren Fortschritt zu vergleichen.</div>
+        <button class="auth-banner-btn" onclick="openAuthModal()">Jetzt anmelden</button>
+      </div>
     </div>
-    <div class="chip">
-      <div class="chip-icon">🥾</div>
-      <div class="chip-value" id="chipHike">€0</div>
-      <div class="chip-label">Bergbahnen</div>
+
+    <!-- Logged in but no groups -->
+    <div id="lbNoGroups" style="display:none">
+      <div class="empty-state">
+        <div class="empty-state-icon">&#128101;</div>
+        <div class="empty-state-text">Noch keine Gruppen</div>
+        <div class="empty-state-sub">Erstelle eine Gruppe oder tritt einer bei</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn-submit" onclick="openCreateGroupModal()" style="flex:1">Gruppe erstellen</button>
+        <button class="btn-outline" onclick="openJoinGroupModal()" style="flex:1;margin-top:0">Code eingeben</button>
+      </div>
     </div>
-    <div class="chip">
-      <div class="chip-icon">🛷</div>
-      <div class="chip-value" id="chipSled">€0</div>
-      <div class="chip-label">Rodeln</div>
-    </div>
-    <div class="chip">
-      <div class="chip-icon">⛸️</div>
-      <div class="chip-value" id="chipSkate">€0</div>
-      <div class="chip-label">Eislaufen</div>
-    </div>
-    <div class="chip">
-      <div class="chip-icon">🏛️</div>
-      <div class="chip-value" id="chipMuseum">€0</div>
-      <div class="chip-label">Kultur</div>
+
+    <!-- Groups + leaderboard -->
+    <div id="lbGroups" style="display:none"></div>
+
+    <div id="lbGroupActions" style="display:none;margin-top:12px">
+      <div style="display:flex;gap:10px">
+        <button class="btn-submit" onclick="openCreateGroupModal()" style="flex:1;font-size:13px;padding:12px">+ Neue Gruppe</button>
+        <button class="btn-outline" onclick="openJoinGroupModal()" style="flex:1;margin-top:0;font-size:13px;padding:12px">Code eingeben</button>
+      </div>
     </div>
   </div>
 
-  <!-- ACTIVITY LOG -->
-  <div class="section-header">
-    <div class="section-title">Letzte Aktivitäten</div>
-    <a class="section-link" id="clearAllBtn" onclick="clearAll()" style="display:none">Alle löschen</a>
-  </div>
-  <div class="activity-list" id="activityList">
-    <div class="empty-state">
-      <div class="empty-state-icon">🏔️</div>
-      <div class="empty-state-text">Noch keine Aktivitäten</div>
-      <div class="empty-state-sub">Tippe + um deine erste Aktivität hinzuzufügen</div>
+  <!-- ===== PROFILE VIEW ===== -->
+  <div class="view" id="viewProfile">
+    <div class="section-header" style="margin-bottom:16px">
+      <div class="section-title">Profil</div>
+    </div>
+
+    <div id="profileNotLoggedIn">
+      <div class="auth-banner">
+        <div class="auth-banner-title">Noch kein Konto</div>
+        <div class="auth-banner-text">Erstelle ein Konto um deine Daten zu sichern und mit Freunden zu vergleichen.</div>
+        <button class="auth-banner-btn" onclick="openAuthModal()">Konto erstellen</button>
+      </div>
+    </div>
+
+    <div id="profileLoggedIn" style="display:none">
+      <div class="lb-group-card">
+        <div style="text-align:center;margin-bottom:16px">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--ftt-blue),var(--ftt-blue-deep));display:inline-flex;align-items:center;justify-content:center;font-size:28px;color:white;font-weight:900" id="profileAvatar">?</div>
+          <div style="font-size:18px;font-weight:800;margin-top:10px" id="profileName">-</div>
+          <div style="font-size:12px;color:var(--ftt-text-light);font-weight:500" id="profileEmail">-</div>
+        </div>
+      </div>
+
+      <button class="btn-danger-outline" onclick="handleLogout()">Abmelden</button>
     </div>
   </div>
+
 </div>
 
 <!-- FAB -->
-<button class="fab" onclick="openAddModal()">
-  <span style="font-size:20px">+</span> Aktivität hinzufügen
+<button class="fab" id="fab" onclick="openAddModal()">
+  <span style="font-size:20px">+</span> Aktivit&auml;t hinzuf&uuml;gen
 </button>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="nav-tab active" data-view="viewTracker" onclick="switchView('viewTracker')">
+      <span class="nav-tab-icon">&#127968;</span>
+      Tracker
+    </button>
+    <button class="nav-tab" data-view="viewLeaderboard" onclick="switchView('viewLeaderboard')">
+      <span class="nav-tab-icon">&#127942;</span>
+      Rangliste
+    </button>
+    <button class="nav-tab" data-view="viewProfile" onclick="switchView('viewProfile')">
+      <span class="nav-tab-icon">&#128100;</span>
+      Profil
+    </button>
+  </div>
+</div>
 
 <!-- ADD ACTIVITY MODAL -->
 <div class="modal-overlay" id="addModal">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-header">
-      <div class="modal-title">Aktivität hinzufügen</div>
-      <button class="modal-close" onclick="closeAddModal()">✕</button>
+      <div class="modal-title">Aktivit&auml;t hinzuf&uuml;gen</div>
+      <button class="modal-close" onclick="closeAddModal()">&#10005;</button>
     </div>
     <div class="modal-body">
-      <!-- Category -->
       <div class="form-group">
         <label class="form-label">Kategorie</label>
         <div class="select-wrap">
           <select class="form-select" id="categorySelect" onchange="filterVenues()">
             <option value="">Alle Kategorien</option>
-            <option value="ski">⛷️ Ski & Snowboard</option>
-            <option value="swim">🏊 Schwimmen</option>
-            <option value="cable">🚡 Bergbahnen (Sommer)</option>
-            <option value="sled">🛷 Rodeln</option>
-            <option value="skate">⛸️ Eislaufen</option>
-            <option value="museum">🏛️ Kunst & Kultur</option>
+            <option value="ski">&#9975;&#65039; Ski & Snowboard</option>
+            <option value="swim">&#127946; Schwimmen</option>
+            <option value="cable">&#128673; Bergbahnen (Sommer)</option>
+            <option value="sled">&#128759; Rodeln</option>
+            <option value="skate">&#9976;&#65039; Eislaufen</option>
+            <option value="museum">&#127963;&#65039; Kunst & Kultur</option>
           </select>
         </div>
       </div>
-
-      <!-- Venue Search + List -->
       <div class="form-group">
         <label class="form-label">Ort / Anlage</label>
         <input type="text" class="form-input venue-search" id="venueSearch" placeholder="Suchen..." oninput="filterVenues()">
         <div class="venue-list" id="venueList"></div>
       </div>
-
-      <!-- Date + Duration -->
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Datum</label>
@@ -842,14 +1107,11 @@
           <input type="number" class="form-input" id="activityHours" value="4" min="1" max="12" step="0.5">
         </div>
       </div>
-
-      <!-- Value Preview -->
       <div class="value-preview" id="valuePreview">
         <div class="value-preview-label">Ersparnis</div>
-        <div class="value-preview-amount" id="valuePreviewAmount">€0</div>
+        <div class="value-preview-amount" id="valuePreviewAmount">&euro;0</div>
       </div>
-
-      <button class="btn-submit" id="submitBtn" onclick="addActivity()" disabled>Hinzufügen</button>
+      <button class="btn-submit" id="submitBtn" onclick="addActivity()" disabled>Hinzuf&uuml;gen</button>
     </div>
   </div>
 </div>
@@ -859,8 +1121,8 @@
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-header">
-      <div class="modal-title">Ticket auswählen</div>
-      <button class="modal-close" onclick="closeSettings()">✕</button>
+      <div class="modal-title">Ticket ausw&auml;hlen</div>
+      <button class="modal-close" onclick="closeSettings()">&#10005;</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
@@ -872,100 +1134,201 @@
   </div>
 </div>
 
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="authModalTitle">Anmelden</div>
+      <button class="modal-close" onclick="closeAuthModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Anmelden</button>
+        <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Registrieren</button>
+      </div>
+      <div class="auth-error" id="authError"></div>
+
+      <!-- Login form -->
+      <div id="authLoginForm">
+        <div class="form-group">
+          <label class="form-label">E-Mail</label>
+          <input type="email" class="form-input" id="loginEmail" placeholder="deine@email.at">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Passwort</label>
+          <input type="password" class="form-input" id="loginPassword" placeholder="Passwort">
+        </div>
+        <button class="btn-submit" onclick="handleLogin()" id="loginBtn">Anmelden</button>
+      </div>
+
+      <!-- Register form -->
+      <div id="authRegisterForm" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-input" id="registerName" placeholder="Dein Name" maxlength="50">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-Mail</label>
+          <input type="email" class="form-input" id="registerEmail" placeholder="deine@email.at">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Passwort</label>
+          <input type="password" class="form-input" id="registerPassword" placeholder="Mind. 6 Zeichen">
+        </div>
+        <button class="btn-submit" onclick="handleRegister()" id="registerBtn">Konto erstellen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE GROUP MODAL -->
+<div class="modal-overlay" id="createGroupModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Gruppe erstellen</div>
+      <button class="modal-close" onclick="closeModal('createGroupModal')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Gruppenname</label>
+        <input type="text" class="form-input" id="groupName" placeholder="z.B. Ski-Crew 2026" maxlength="100">
+      </div>
+      <button class="btn-submit orange" onclick="handleCreateGroup()">Erstellen</button>
+    </div>
+  </div>
+</div>
+
+<!-- JOIN GROUP MODAL -->
+<div class="modal-overlay" id="joinGroupModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Gruppe beitreten</div>
+      <button class="modal-close" onclick="closeModal('joinGroupModal')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Gruppencode</label>
+        <input type="text" class="form-input" id="joinCode" placeholder="z.B. TIROL7" maxlength="10" style="text-transform:uppercase;letter-spacing:3px;text-align:center;font-size:20px;font-weight:800">
+      </div>
+      <button class="btn-submit" onclick="handleJoinGroup()">Beitreten</button>
+    </div>
+  </div>
+</div>
+
+<!-- GROUP CODE RESULT MODAL -->
+<div class="modal-overlay" id="codeResultModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Dein Gruppencode</div>
+      <button class="modal-close" onclick="closeModal('codeResultModal')">&#10005;</button>
+    </div>
+    <div class="modal-body" style="text-align:center">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ftt-text-light);margin-bottom:8px">Teile diesen Code mit Freunden</div>
+      <div id="codeResultValue" style="font-size:36px;font-weight:900;letter-spacing:6px;color:var(--ftt-blue-deep);margin-bottom:16px;padding:20px;background:#F0F9FC;border-radius:12px">-</div>
+      <button class="btn-submit" onclick="copyGroupCode()">Code kopieren</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <!-- CONFETTI -->
 <div class="confetti-container" id="confetti"></div>
 
 <script>
 // ========== VENUE DATABASE ==========
 const venues = [
-  // SKI & SNOWBOARD - Major resorts
-  { id: 'axamer', name: 'Axamer Lizum', category: 'ski', price: 58, icon: '⛷️' },
-  { id: 'stubaier', name: 'Stubaier Gletscher', category: 'ski', price: 72, icon: '⛷️' },
-  { id: 'schlick', name: 'Schlick 2000', category: 'ski', price: 56, icon: '⛷️' },
-  { id: 'kuehtai', name: 'Kühtai', category: 'ski', price: 55, icon: '⛷️' },
-  { id: 'nordkette_ski', name: 'Nordkettenbahnen (Ski)', category: 'ski', price: 46, icon: '⛷️' },
-  { id: 'muttereralm', name: 'Muttereralm', category: 'ski', price: 42, icon: '⛷️' },
-  { id: 'patscherkofel', name: 'Patscherkofel', category: 'ski', price: 52, icon: '⛷️' },
-  { id: 'rangger', name: 'Rangger Köpfl', category: 'ski', price: 44, icon: '⛷️' },
-  { id: 'glungezer', name: 'Glungezer', category: 'ski', price: 48, icon: '⛷️' },
-  { id: 'kappl', name: 'Kappl', category: 'ski', price: 56, icon: '⛷️' },
-  { id: 'ischgl', name: 'Ischgl / Silvretta Arena *', category: 'ski', price: 76, icon: '⛷️', limited: 3 },
-  { id: 'galtueer', name: 'Galtür – Silvapark', category: 'ski', price: 50, icon: '⛷️' },
-  { id: 'hochoetz', name: 'Hochoetz', category: 'ski', price: 53, icon: '⛷️' },
-  { id: 'bergeralm', name: 'Bergeralm Steinach', category: 'ski', price: 50, icon: '⛷️' },
-  { id: 'serles', name: 'Serlesbahnen Mieders', category: 'ski', price: 38, icon: '⛷️' },
-  { id: 'elfer', name: 'Elferbahnen Neustift', category: 'ski', price: 42, icon: '⛷️' },
-  { id: 'rosshütte', name: 'Bergbahnen Rosshütte Seefeld', category: 'ski', price: 54, icon: '⛷️' },
-  { id: 'skilift_arlberg', name: 'Ski Arlberg *', category: 'ski', price: 76, icon: '⛷️', limited: 3 },
-  // Small lifts
-  { id: 'birkenlift', name: 'Seefeld Birkenlift', category: 'ski', price: 28, icon: '⛷️' },
-  { id: 'geigenbuehel', name: 'Skilift Geigenbühel', category: 'ski', price: 26, icon: '⛷️' },
-  { id: 'trins_lift', name: 'Skilift Trins', category: 'ski', price: 22, icon: '⛷️' },
-  { id: 'sonnenbahn', name: 'Sonnenbahn Milders', category: 'ski', price: 28, icon: '⛷️' },
-  { id: 'stans', name: 'Stans Burglift', category: 'ski', price: 22, icon: '⛷️' },
-  { id: 'vogelsberg', name: 'Vögelsberg Wattens', category: 'ski', price: 20, icon: '⛷️' },
-  { id: 'wildstaettlift', name: 'Wildstättlift Wattenberg', category: 'ski', price: 18, icon: '⛷️' },
+  // SKI & SNOWBOARD
+  { id: 'axamer', name: 'Axamer Lizum', category: 'ski', price: 58, icon: '\u26F7\uFE0F' },
+  { id: 'stubaier', name: 'Stubaier Gletscher', category: 'ski', price: 72, icon: '\u26F7\uFE0F' },
+  { id: 'schlick', name: 'Schlick 2000', category: 'ski', price: 56, icon: '\u26F7\uFE0F' },
+  { id: 'kuehtai', name: 'K\u00FChtai', category: 'ski', price: 55, icon: '\u26F7\uFE0F' },
+  { id: 'nordkette_ski', name: 'Nordkettenbahnen (Ski)', category: 'ski', price: 46, icon: '\u26F7\uFE0F' },
+  { id: 'muttereralm', name: 'Muttereralm', category: 'ski', price: 42, icon: '\u26F7\uFE0F' },
+  { id: 'patscherkofel', name: 'Patscherkofel', category: 'ski', price: 52, icon: '\u26F7\uFE0F' },
+  { id: 'rangger', name: 'Rangger K\u00F6pfl', category: 'ski', price: 44, icon: '\u26F7\uFE0F' },
+  { id: 'glungezer', name: 'Glungezer', category: 'ski', price: 48, icon: '\u26F7\uFE0F' },
+  { id: 'kappl', name: 'Kappl', category: 'ski', price: 56, icon: '\u26F7\uFE0F' },
+  { id: 'ischgl', name: 'Ischgl / Silvretta Arena *', category: 'ski', price: 76, icon: '\u26F7\uFE0F', limited: 3 },
+  { id: 'galtueer', name: 'Galt\u00FCr \u2013 Silvapark', category: 'ski', price: 50, icon: '\u26F7\uFE0F' },
+  { id: 'hochoetz', name: 'Hochoetz', category: 'ski', price: 53, icon: '\u26F7\uFE0F' },
+  { id: 'bergeralm', name: 'Bergeralm Steinach', category: 'ski', price: 50, icon: '\u26F7\uFE0F' },
+  { id: 'serles', name: 'Serlesbahnen Mieders', category: 'ski', price: 38, icon: '\u26F7\uFE0F' },
+  { id: 'elfer', name: 'Elferbahnen Neustift', category: 'ski', price: 42, icon: '\u26F7\uFE0F' },
+  { id: 'rosshuette', name: 'Bergbahnen Rossh\u00FCtte Seefeld', category: 'ski', price: 54, icon: '\u26F7\uFE0F' },
+  { id: 'skilift_arlberg', name: 'Ski Arlberg *', category: 'ski', price: 76, icon: '\u26F7\uFE0F', limited: 3 },
+  { id: 'birkenlift', name: 'Seefeld Birkenlift', category: 'ski', price: 28, icon: '\u26F7\uFE0F' },
+  { id: 'geigenbuehel', name: 'Skilift Geigenb\u00FChel', category: 'ski', price: 26, icon: '\u26F7\uFE0F' },
+  { id: 'trins_lift', name: 'Skilift Trins', category: 'ski', price: 22, icon: '\u26F7\uFE0F' },
+  { id: 'sonnenbahn', name: 'Sonnenbahn Milders', category: 'ski', price: 28, icon: '\u26F7\uFE0F' },
+  { id: 'stans', name: 'Stans Burglift', category: 'ski', price: 22, icon: '\u26F7\uFE0F' },
+  { id: 'vogelsberg', name: 'V\u00F6gelsberg Wattens', category: 'ski', price: 20, icon: '\u26F7\uFE0F' },
+  { id: 'wildstaettlift', name: 'Wildst\u00E4ttlift Wattenberg', category: 'ski', price: 18, icon: '\u26F7\uFE0F' },
 
-  // CABLE CARS / BERGBAHNEN (Summer use)
-  { id: 'nordkette_cable', name: 'Nordkettenbahnen', category: 'cable', price: 39.50, icon: '🚡' },
-  { id: 'patscherkofel_cable', name: 'Patscherkofel Bergbahn', category: 'cable', price: 32, icon: '🚡' },
-  { id: 'muttereralm_cable', name: 'Muttereralm Bahn', category: 'cable', price: 28, icon: '🚡' },
-  { id: 'stubaier_cable', name: 'Stubaier Gletscher Bahn', category: 'cable', price: 52, icon: '🚡' },
-  { id: 'schlick_cable', name: 'Schlick 2000 Bahn', category: 'cable', price: 36, icon: '🚡' },
-  { id: 'elfer_cable', name: 'Elferbahnen', category: 'cable', price: 30, icon: '🚡' },
-  { id: 'serles_cable', name: 'Serlesbahnen', category: 'cable', price: 26, icon: '🚡' },
-  { id: 'glungezer_cable', name: 'Glungezerbahn', category: 'cable', price: 32, icon: '🚡' },
-  { id: 'rangger_cable', name: 'Rangger Köpfl Bahn', category: 'cable', price: 28, icon: '🚡' },
-  { id: 'rosshütte_cable', name: 'Rosshütte Seefeld', category: 'cable', price: 36, icon: '🚡' },
+  // CABLE CARS
+  { id: 'nordkette_cable', name: 'Nordkettenbahnen', category: 'cable', price: 39.50, icon: '\uD83D\uDEA1' },
+  { id: 'patscherkofel_cable', name: 'Patscherkofel Bergbahn', category: 'cable', price: 32, icon: '\uD83D\uDEA1' },
+  { id: 'muttereralm_cable', name: 'Muttereralm Bahn', category: 'cable', price: 28, icon: '\uD83D\uDEA1' },
+  { id: 'stubaier_cable', name: 'Stubaier Gletscher Bahn', category: 'cable', price: 52, icon: '\uD83D\uDEA1' },
+  { id: 'schlick_cable', name: 'Schlick 2000 Bahn', category: 'cable', price: 36, icon: '\uD83D\uDEA1' },
+  { id: 'elfer_cable', name: 'Elferbahnen', category: 'cable', price: 30, icon: '\uD83D\uDEA1' },
+  { id: 'serles_cable', name: 'Serlesbahnen', category: 'cable', price: 26, icon: '\uD83D\uDEA1' },
+  { id: 'glungezer_cable', name: 'Glungezerbahn', category: 'cable', price: 32, icon: '\uD83D\uDEA1' },
+  { id: 'rangger_cable', name: 'Rangger K\u00F6pfl Bahn', category: 'cable', price: 28, icon: '\uD83D\uDEA1' },
+  { id: 'rosshuette_cable', name: 'Rossh\u00FCtte Seefeld', category: 'cable', price: 36, icon: '\uD83D\uDEA1' },
 
   // RODELN
-  { id: 'muttereralm_rodeln', name: 'Muttereralm Rodelbahn', category: 'sled', price: 28, icon: '🛷' },
-  { id: 'elfer_rodeln', name: 'Elferbahnen Rodelbahn', category: 'sled', price: 26, icon: '🛷' },
-  { id: 'rangger_rodeln', name: 'Rangger Köpfl Rodelbahn', category: 'sled', price: 22, icon: '🛷' },
+  { id: 'muttereralm_rodeln', name: 'Muttereralm Rodelbahn', category: 'sled', price: 28, icon: '\uD83D\uDEF7' },
+  { id: 'elfer_rodeln', name: 'Elferbahnen Rodelbahn', category: 'sled', price: 26, icon: '\uD83D\uDEF7' },
+  { id: 'rangger_rodeln', name: 'Rangger K\u00F6pfl Rodelbahn', category: 'sled', price: 22, icon: '\uD83D\uDEF7' },
 
   // EISLAUFEN
-  { id: 'eis_goetzens', name: 'Eishalle Götzens', category: 'skate', price: 7, icon: '⛸️' },
-  { id: 'eis_steinach', name: 'Eishalle Steinach', category: 'skate', price: 6, icon: '⛸️' },
-  { id: 'eis_baggersee', name: 'Eislaufplatz Baggersee', category: 'skate', price: 5, icon: '⛸️' },
-  { id: 'eis_hoetting', name: 'Eislaufplatz Hötting-West', category: 'skate', price: 5, icon: '⛸️' },
-  { id: 'eis_igls', name: 'Eislaufplatz Igls', category: 'skate', price: 5, icon: '⛸️' },
-  { id: 'eis_schwaz', name: 'Eislaufplatz Schwaz', category: 'skate', price: 6, icon: '⛸️' },
-  { id: 'eis_sillpark', name: 'Eislaufplatz Sillpark', category: 'skate', price: 7, icon: '⛸️' },
-  { id: 'eis_silz', name: 'Eislaufplatz Silz', category: 'skate', price: 5, icon: '⛸️' },
-  { id: 'eis_trins', name: 'Eislaufplatz Trins', category: 'skate', price: 5, icon: '⛸️' },
-  { id: 'eis_zirl', name: 'Eislaufplatz Zirl', category: 'skate', price: 5, icon: '⛸️' },
+  { id: 'eis_goetzens', name: 'Eishalle G\u00F6tzens', category: 'skate', price: 7, icon: '\u26F8\uFE0F' },
+  { id: 'eis_steinach', name: 'Eishalle Steinach', category: 'skate', price: 6, icon: '\u26F8\uFE0F' },
+  { id: 'eis_baggersee', name: 'Eislaufplatz Baggersee', category: 'skate', price: 5, icon: '\u26F8\uFE0F' },
+  { id: 'eis_hoetting', name: 'Eislaufplatz H\u00F6tting-West', category: 'skate', price: 5, icon: '\u26F8\uFE0F' },
+  { id: 'eis_igls', name: 'Eislaufplatz Igls', category: 'skate', price: 5, icon: '\u26F8\uFE0F' },
+  { id: 'eis_schwaz', name: 'Eislaufplatz Schwaz', category: 'skate', price: 6, icon: '\u26F8\uFE0F' },
+  { id: 'eis_sillpark', name: 'Eislaufplatz Sillpark', category: 'skate', price: 7, icon: '\u26F8\uFE0F' },
+  { id: 'eis_silz', name: 'Eislaufplatz Silz', category: 'skate', price: 5, icon: '\u26F8\uFE0F' },
+  { id: 'eis_trins', name: 'Eislaufplatz Trins', category: 'skate', price: 5, icon: '\u26F8\uFE0F' },
+  { id: 'eis_zirl', name: 'Eislaufplatz Zirl', category: 'skate', price: 5, icon: '\u26F8\uFE0F' },
 
   // SCHWIMMEN
-  { id: 'hallenbad_amraser', name: 'Hallenbad Amraser Straße', category: 'swim', price: 6.80, icon: '🏊' },
-  { id: 'hallenbad_hoetting', name: 'Hallenbad Höttinger Au', category: 'swim', price: 6.80, icon: '🏊' },
-  { id: 'hallenbad_olymp', name: 'Hallenbad Olympisches Dorf', category: 'swim', price: 6.80, icon: '🏊' },
-  { id: 'telfer_bad', name: 'Telfer Bad *', category: 'swim', price: 8.50, icon: '🏊', limited: 3 },
+  { id: 'hallenbad_amraser', name: 'Hallenbad Amraser Stra\u00DFe', category: 'swim', price: 6.80, icon: '\uD83C\uDFCA' },
+  { id: 'hallenbad_hoetting', name: 'Hallenbad H\u00F6ttinger Au', category: 'swim', price: 6.80, icon: '\uD83C\uDFCA' },
+  { id: 'hallenbad_olymp', name: 'Hallenbad Olympisches Dorf', category: 'swim', price: 6.80, icon: '\uD83C\uDFCA' },
+  { id: 'telfer_bad', name: 'Telfer Bad *', category: 'swim', price: 8.50, icon: '\uD83C\uDFCA', limited: 3 },
 
   // KUNST & KULTUR
-  { id: 'audioversum', name: 'Audioversum', category: 'museum', price: 12, icon: '🏛️' },
-  { id: 'glockenmuseum', name: 'Glockenmuseum Grassmayr', category: 'museum', price: 10, icon: '🏛️' },
-  { id: 'goldenes_dachl', name: 'Museum Goldenes Dachl', category: 'museum', price: 5.50, icon: '🏛️' },
-  { id: 'muenze_hall', name: 'Münze Hall *', category: 'museum', price: 10, icon: '🏛️', limited: 3 },
-  { id: 'hofkirche', name: 'Hofkirche *', category: 'museum', price: 8, icon: '🏛️', limited: 3 },
-  { id: 'tirol_panorama', name: 'Tirol Panorama *', category: 'museum', price: 7, icon: '🏛️', limited: 3 },
-  { id: 'volkskunstmuseum', name: 'Volkskunstmuseum *', category: 'museum', price: 12, icon: '🏛️', limited: 3 },
-  { id: 'zeughaus', name: 'Zeughaus *', category: 'museum', price: 5, icon: '🏛️', limited: 3 },
-  { id: 'stadtmuseum', name: 'Stadtarchiv/Stadtmuseum IBK', category: 'museum', price: 6, icon: '🏛️' },
-  { id: 'swarovski', name: 'Swarovski Kristallwelten *', category: 'museum', price: 23, icon: '🏛️', limited: 3 },
+  { id: 'audioversum', name: 'Audioversum', category: 'museum', price: 12, icon: '\uD83C\uDFDB\uFE0F' },
+  { id: 'glockenmuseum', name: 'Glockenmuseum Grassmayr', category: 'museum', price: 10, icon: '\uD83C\uDFDB\uFE0F' },
+  { id: 'goldenes_dachl', name: 'Museum Goldenes Dachl', category: 'museum', price: 5.50, icon: '\uD83C\uDFDB\uFE0F' },
+  { id: 'muenze_hall', name: 'M\u00FCnze Hall *', category: 'museum', price: 10, icon: '\uD83C\uDFDB\uFE0F', limited: 3 },
+  { id: 'hofkirche', name: 'Hofkirche *', category: 'museum', price: 8, icon: '\uD83C\uDFDB\uFE0F', limited: 3 },
+  { id: 'tirol_panorama', name: 'Tirol Panorama *', category: 'museum', price: 7, icon: '\uD83C\uDFDB\uFE0F', limited: 3 },
+  { id: 'volkskunstmuseum', name: 'Volkskunstmuseum *', category: 'museum', price: 12, icon: '\uD83C\uDFDB\uFE0F', limited: 3 },
+  { id: 'zeughaus', name: 'Zeughaus *', category: 'museum', price: 5, icon: '\uD83C\uDFDB\uFE0F', limited: 3 },
+  { id: 'stadtmuseum', name: 'Stadtarchiv/Stadtmuseum IBK', category: 'museum', price: 6, icon: '\uD83C\uDFDB\uFE0F' },
+  { id: 'swarovski', name: 'Swarovski Kristallwelten *', category: 'museum', price: 23, icon: '\uD83C\uDFDB\uFE0F', limited: 3 },
 ];
 
-// Ticket types
 const ticketTypes = [
   { id: 'adult_pre', name: 'Erwachsene (Vorverkauf)', price: 727 },
-  { id: 'adult', name: 'Erwachsene (Regulär)', price: 872 },
+  { id: 'adult', name: 'Erwachsene (Regul\u00E4r)', price: 872 },
   { id: 'u23_pre', name: 'U23 (Vorverkauf)', price: 555 },
-  { id: 'u23', name: 'U23 (Regulär)', price: 665 },
+  { id: 'u23', name: 'U23 (Regul\u00E4r)', price: 665 },
   { id: 'youth_pre', name: 'Jugend (Vorverkauf)', price: 393 },
-  { id: 'youth', name: 'Jugend (Regulär)', price: 471 },
+  { id: 'youth', name: 'Jugend (Regul\u00E4r)', price: 471 },
   { id: 'child_pre', name: 'Kinder (Vorverkauf)', price: 262 },
-  { id: 'child', name: 'Kinder (Regulär)', price: 314 },
+  { id: 'child', name: 'Kinder (Regul\u00E4r)', price: 314 },
   { id: 'senior_pre', name: 'Senior 65+ (Vorverkauf)', price: 555 },
-  { id: 'senior', name: 'Senior 65+ (Regulär)', price: 665 },
+  { id: 'senior', name: 'Senior 65+ (Regul\u00E4r)', price: 665 },
 ];
 
 // ========== STATE ==========
@@ -975,28 +1338,242 @@ let state = {
   selectedVenueId: null,
 };
 
+let currentUser = null; // { id, email, displayName, ticketType }
+let isOnline = false; // logged in with API
+
+// ========== API HELPERS ==========
+async function api(path, opts = {}) {
+  const res = await fetch(path, {
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    ...opts,
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Fehler');
+  return data;
+}
+
 // ========== INIT ==========
-function init() {
+async function init() {
+  // Load localStorage state
   const saved = localStorage.getItem('ftt_state');
   if (saved) {
-    try {
-      state = JSON.parse(saved);
-    } catch(e) {}
+    try { state = JSON.parse(saved); } catch(e) {}
   }
+
   document.getElementById('activityDate').value = new Date().toISOString().split('T')[0];
   renderVenues();
   renderActivities();
   updateDashboard();
+
+  // Try to restore session
+  try {
+    const data = await api('/api/auth?action=me');
+    currentUser = data.user;
+    isOnline = true;
+    state.ticketType = currentUser.ticketType || state.ticketType;
+
+    // Load activities from DB
+    const actData = await api('/api/activities');
+    state.activities = actData.activities;
+    save();
+    renderActivities();
+    updateDashboard();
+    updateAuthUI();
+  } catch(e) {
+    // Not logged in, use localStorage
+    updateAuthUI();
+  }
 }
 
 function save() {
   localStorage.setItem('ftt_state', JSON.stringify(state));
 }
 
-// ========== VENUE LIST ==========
-function filterVenues() {
-  renderVenues();
+// ========== AUTH UI ==========
+function updateAuthUI() {
+  const btn = document.getElementById('headerUserBtn');
+  const banner = document.getElementById('authBanner');
+  const lbNotLoggedIn = document.getElementById('lbNotLoggedIn');
+  const lbNoGroups = document.getElementById('lbNoGroups');
+  const profileNotLoggedIn = document.getElementById('profileNotLoggedIn');
+  const profileLoggedIn = document.getElementById('profileLoggedIn');
+
+  if (currentUser) {
+    btn.textContent = currentUser.displayName;
+    btn.onclick = () => switchView('viewProfile');
+    banner.style.display = 'none';
+    lbNotLoggedIn.style.display = 'none';
+    profileNotLoggedIn.style.display = 'none';
+    profileLoggedIn.style.display = 'block';
+
+    document.getElementById('profileAvatar').textContent = currentUser.displayName.charAt(0).toUpperCase();
+    document.getElementById('profileName').textContent = currentUser.displayName;
+    document.getElementById('profileEmail').textContent = currentUser.email;
+
+    loadMyGroups();
+  } else {
+    btn.textContent = 'Anmelden';
+    btn.onclick = openAuthModal;
+    banner.style.display = 'block';
+    lbNotLoggedIn.style.display = 'block';
+    lbNoGroups.style.display = 'none';
+    document.getElementById('lbGroups').style.display = 'none';
+    document.getElementById('lbGroupActions').style.display = 'none';
+    profileNotLoggedIn.style.display = 'block';
+    profileLoggedIn.style.display = 'none';
+  }
 }
+
+// ========== VIEW SWITCHING ==========
+function switchView(viewId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[data-view="${viewId}"]`).classList.add('active');
+
+  const fab = document.getElementById('fab');
+  fab.style.display = viewId === 'viewTracker' ? 'flex' : 'none';
+
+  if (viewId === 'viewLeaderboard' && currentUser) {
+    loadMyGroups();
+  }
+}
+
+// ========== AUTH ==========
+function openAuthModal() {
+  document.getElementById('authError').classList.remove('show');
+  document.getElementById('authModal').classList.add('active');
+}
+
+function closeAuthModal() {
+  document.getElementById('authModal').classList.remove('active');
+}
+
+function switchAuthTab(tab) {
+  document.getElementById('authError').classList.remove('show');
+  if (tab === 'login') {
+    document.getElementById('tabLogin').classList.add('active');
+    document.getElementById('tabRegister').classList.remove('active');
+    document.getElementById('authLoginForm').style.display = 'block';
+    document.getElementById('authRegisterForm').style.display = 'none';
+    document.getElementById('authModalTitle').textContent = 'Anmelden';
+  } else {
+    document.getElementById('tabLogin').classList.remove('active');
+    document.getElementById('tabRegister').classList.add('active');
+    document.getElementById('authLoginForm').style.display = 'none';
+    document.getElementById('authRegisterForm').style.display = 'block';
+    document.getElementById('authModalTitle').textContent = 'Registrieren';
+  }
+}
+
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) return showAuthError('Bitte alle Felder ausf\u00FCllen');
+
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>Anmelden...';
+
+  try {
+    const data = await api('/api/auth?action=login', { method: 'POST', body: { email, password } });
+    currentUser = data.user;
+    isOnline = true;
+
+    // Load DB activities
+    const actData = await api('/api/activities');
+    state.activities = actData.activities;
+    state.ticketType = currentUser.ticketType || state.ticketType;
+    save();
+    renderActivities();
+    updateDashboard();
+    updateAuthUI();
+    closeAuthModal();
+    showToast('Willkommen zur\u00FCck, ' + currentUser.displayName + '!');
+  } catch(e) {
+    showAuthError(e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Anmelden';
+  }
+}
+
+async function handleRegister() {
+  const displayName = document.getElementById('registerName').value.trim();
+  const email = document.getElementById('registerEmail').value.trim();
+  const password = document.getElementById('registerPassword').value;
+
+  if (!displayName || !email || !password) return showAuthError('Bitte alle Felder ausf\u00FCllen');
+  if (password.length < 6) return showAuthError('Passwort muss mind. 6 Zeichen lang sein');
+
+  const btn = document.getElementById('registerBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span>Erstellen...';
+
+  try {
+    const data = await api('/api/auth?action=register', { method: 'POST', body: { email, password, displayName } });
+    currentUser = data.user;
+    isOnline = true;
+
+    // Import localStorage activities to DB if any
+    const localActivities = state.activities;
+    if (localActivities.length > 0) {
+      try {
+        await api('/api/activities?action=import', {
+          method: 'POST',
+          body: {
+            activities: localActivities.map(a => ({
+              venueId: a.venueId,
+              venueName: a.venueName,
+              category: a.category,
+              icon: a.icon,
+              price: a.price,
+              date: a.date,
+              hours: a.hours,
+            })),
+          },
+        });
+        showToast(localActivities.length + ' Aktivit\u00E4ten importiert!');
+      } catch(e) {}
+    }
+
+    // Reload from DB
+    const actData = await api('/api/activities');
+    state.activities = actData.activities;
+    save();
+    renderActivities();
+    updateDashboard();
+    updateAuthUI();
+    closeAuthModal();
+    showToast('Willkommen, ' + currentUser.displayName + '!');
+  } catch(e) {
+    showAuthError(e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Konto erstellen';
+  }
+}
+
+async function handleLogout() {
+  try { await api('/api/auth?action=logout', { method: 'POST' }); } catch(e) {}
+  currentUser = null;
+  isOnline = false;
+  // Keep localStorage state as-is
+  updateAuthUI();
+  switchView('viewTracker');
+  showToast('Abgemeldet');
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+// ========== VENUE LIST ==========
+function filterVenues() { renderVenues(); }
 
 function renderVenues() {
   const cat = document.getElementById('categorySelect').value;
@@ -1012,7 +1589,7 @@ function renderVenues() {
     const limitTag = v.limited ? ` <span style="color:#E8871E;font-size:9px">(${v.limited}x)</span>` : '';
     return `<div class="venue-option ${sel}" onclick="selectVenue('${v.id}')">
       <span>${v.icon} ${v.name}${limitTag}</span>
-      <span class="venue-price">€${v.price.toFixed(0)}</span>
+      <span class="venue-price">\u20AC${v.price.toFixed(0)}</span>
     </div>`;
   }).join('');
 }
@@ -1020,17 +1597,16 @@ function renderVenues() {
 function selectVenue(id) {
   state.selectedVenueId = id;
   renderVenues();
-
   const venue = venues.find(v => v.id === id);
   if (venue) {
     document.getElementById('valuePreview').classList.add('show');
-    document.getElementById('valuePreviewAmount').textContent = `€${venue.price.toFixed(2)}`;
+    document.getElementById('valuePreviewAmount').textContent = `\u20AC${venue.price.toFixed(2)}`;
     document.getElementById('submitBtn').disabled = false;
   }
 }
 
 // ========== ADD ACTIVITY ==========
-function addActivity() {
+async function addActivity() {
   const venue = venues.find(v => v.id === state.selectedVenueId);
   if (!venue) return;
 
@@ -1047,7 +1623,6 @@ function addActivity() {
   }
 
   const activity = {
-    id: Date.now(),
     venueId: venue.id,
     venueName: venue.name,
     category: venue.category,
@@ -1057,9 +1632,20 @@ function addActivity() {
     hours: hours,
   };
 
+  if (isOnline) {
+    try {
+      const data = await api('/api/activities', { method: 'POST', body: activity });
+      activity.id = data.activity.id;
+    } catch(e) {
+      alert('Fehler beim Speichern: ' + e.message);
+      return;
+    }
+  } else {
+    activity.id = Date.now();
+  }
+
   state.activities.unshift(activity);
   save();
-
   closeAddModal();
   renderActivities();
   updateDashboard();
@@ -1072,7 +1658,16 @@ function addActivity() {
   }
 }
 
-function deleteActivity(id) {
+async function deleteActivity(id) {
+  if (isOnline) {
+    try {
+      await api('/api/activities', { method: 'DELETE', body: { id } });
+    } catch(e) {
+      alert('Fehler: ' + e.message);
+      return;
+    }
+  }
+
   state.activities = state.activities.filter(a => a.id !== id);
   save();
   renderActivities();
@@ -1080,12 +1675,15 @@ function deleteActivity(id) {
 }
 
 function clearAll() {
-  if (confirm('Alle Aktivitäten löschen?')) {
-    state.activities = [];
-    save();
-    renderActivities();
-    updateDashboard();
+  if (!confirm('Alle Aktivit\u00E4ten l\u00F6schen?')) return;
+  if (isOnline) {
+    // Delete each from DB
+    Promise.all(state.activities.map(a => api('/api/activities', { method: 'DELETE', body: { id: a.id } }).catch(() => {})));
   }
+  state.activities = [];
+  save();
+  renderActivities();
+  updateDashboard();
 }
 
 // ========== RENDER ==========
@@ -1095,9 +1693,9 @@ function renderActivities() {
 
   if (state.activities.length === 0) {
     list.innerHTML = `<div class="empty-state">
-      <div class="empty-state-icon">🏔️</div>
-      <div class="empty-state-text">Noch keine Aktivitäten</div>
-      <div class="empty-state-sub">Tippe + um deine erste Aktivität hinzuzufügen</div>
+      <div class="empty-state-icon">\uD83C\uDFD4\uFE0F</div>
+      <div class="empty-state-text">Noch keine Aktivit\u00E4ten</div>
+      <div class="empty-state-sub">Tippe + um deine erste Aktivit\u00E4t hinzuzuf\u00FCgen</div>
     </div>`;
     clearBtn.style.display = 'none';
     return;
@@ -1113,12 +1711,12 @@ function renderActivities() {
       <div class="activity-icon-wrap ${catClass}">${a.icon}</div>
       <div class="activity-info">
         <div class="activity-name">${a.venueName}</div>
-        <div class="activity-meta">${dateStr} · ${a.hours}h</div>
+        <div class="activity-meta">${dateStr} \u00B7 ${a.hours}h</div>
       </div>
       <div class="activity-value">
-        <div class="activity-value-amount">+€${a.price.toFixed(0)}</div>
+        <div class="activity-value-amount">+\u20AC${a.price.toFixed(0)}</div>
       </div>
-      <button class="activity-delete" onclick="deleteActivity(${a.id})" title="Löschen">✕</button>
+      <button class="activity-delete" onclick="deleteActivity(${a.id})" title="L\u00F6schen">\u2715</button>
     </div>`;
   }).join('');
 }
@@ -1129,27 +1727,25 @@ function updateDashboard() {
   const pct = Math.min((total / ticket.price) * 100, 100);
   const avg = state.activities.length > 0 ? total / state.activities.length : 0;
 
-  document.getElementById('heroValue').textContent = `€${total.toFixed(0)}`;
-  document.getElementById('heroTicketPrice').textContent = `€${ticket.price}`;
+  document.getElementById('heroValue').textContent = `\u20AC${total.toFixed(0)}`;
+  document.getElementById('heroTicketPrice').textContent = `\u20AC${ticket.price}`;
   document.getElementById('progressBar').style.width = `${pct}%`;
   document.getElementById('statActivities').textContent = state.activities.length;
   document.getElementById('statPercent').textContent = `${Math.round(pct)}%`;
-  document.getElementById('statAvg').textContent = `€${avg.toFixed(0)}`;
+  document.getElementById('statAvg').textContent = `\u20AC${avg.toFixed(0)}`;
 
-  // Category breakdowns
   const cats = { ski: 0, swim: 0, cable: 0, sled: 0, skate: 0, museum: 0 };
   state.activities.forEach(a => {
     if (cats.hasOwnProperty(a.category)) cats[a.category] += a.price;
   });
 
-  document.getElementById('chipSki').textContent = `€${cats.ski.toFixed(0)}`;
-  document.getElementById('chipSwim').textContent = `€${cats.swim.toFixed(0)}`;
-  document.getElementById('chipHike').textContent = `€${cats.cable.toFixed(0)}`;
-  document.getElementById('chipSled').textContent = `€${cats.sled.toFixed(0)}`;
-  document.getElementById('chipSkate').textContent = `€${cats.skate.toFixed(0)}`;
-  document.getElementById('chipMuseum').textContent = `€${cats.museum.toFixed(0)}`;
+  document.getElementById('chipSki').textContent = `\u20AC${cats.ski.toFixed(0)}`;
+  document.getElementById('chipSwim').textContent = `\u20AC${cats.swim.toFixed(0)}`;
+  document.getElementById('chipHike').textContent = `\u20AC${cats.cable.toFixed(0)}`;
+  document.getElementById('chipSled').textContent = `\u20AC${cats.sled.toFixed(0)}`;
+  document.getElementById('chipSkate').textContent = `\u20AC${cats.skate.toFixed(0)}`;
+  document.getElementById('chipMuseum').textContent = `\u20AC${cats.museum.toFixed(0)}`;
 
-  // Color hero based on progress
   const hero = document.querySelector('.hero-card');
   if (pct >= 100) {
     hero.style.background = 'linear-gradient(145deg, #27AE60, #1E8449)';
@@ -1182,7 +1778,7 @@ function openSettings() {
     const sel = state.ticketType === t.id ? 'selected' : '';
     return `<div class="ticket-type-card ${sel}" onclick="selectTicketType('${t.id}', this)">
       <span class="ticket-type-name">${t.name}</span>
-      <span class="ticket-type-price">€${t.price}</span>
+      <span class="ticket-type-price">\u20AC${t.price}</span>
     </div>`;
   }).join('');
   document.getElementById('settingsModal').classList.add('active');
@@ -1198,19 +1794,189 @@ function selectTicketType(id, el) {
   el.classList.add('selected');
 }
 
-function saveSettings() {
+async function saveSettings() {
   save();
   updateDashboard();
   closeSettings();
+
+  if (isOnline) {
+    try {
+      await api('/api/auth?action=settings', { method: 'POST', body: { ticketType: state.ticketType } });
+    } catch(e) {}
+  }
 }
 
-// Click outside modal to close
-document.getElementById('addModal').addEventListener('click', function(e) {
-  if (e.target === this) closeAddModal();
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+// Click outside modals to close
+['addModal', 'settingsModal', 'authModal', 'createGroupModal', 'joinGroupModal', 'codeResultModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) closeModal(id);
+  });
 });
-document.getElementById('settingsModal').addEventListener('click', function(e) {
-  if (e.target === this) closeSettings();
-});
+
+// ========== GROUPS ==========
+function openCreateGroupModal() {
+  document.getElementById('groupName').value = '';
+  document.getElementById('createGroupModal').classList.add('active');
+}
+
+function openJoinGroupModal() {
+  document.getElementById('joinCode').value = '';
+  document.getElementById('joinGroupModal').classList.add('active');
+}
+
+let lastCreatedCode = '';
+
+async function handleCreateGroup() {
+  const name = document.getElementById('groupName').value.trim();
+  if (!name) return;
+
+  try {
+    const data = await api('/api/groups?action=create', { method: 'POST', body: { name } });
+    lastCreatedCode = data.group.code;
+    closeModal('createGroupModal');
+
+    document.getElementById('codeResultValue').textContent = data.group.code;
+    document.getElementById('codeResultModal').classList.add('active');
+
+    loadMyGroups();
+  } catch(e) {
+    alert(e.message);
+  }
+}
+
+async function handleJoinGroup() {
+  const code = document.getElementById('joinCode').value.trim();
+  if (!code) return;
+
+  try {
+    const data = await api('/api/groups?action=join', { method: 'POST', body: { code } });
+    closeModal('joinGroupModal');
+    showToast('Gruppe "' + data.group.name + '" beigetreten!');
+    loadMyGroups();
+  } catch(e) {
+    alert(e.message);
+  }
+}
+
+function copyGroupCode() {
+  const code = lastCreatedCode || document.getElementById('codeResultValue').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    showToast('Code kopiert!');
+  });
+}
+
+async function shareGroupCode(code, name) {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'Freizeitticket Challenge',
+        text: `Tritt meiner Gruppe "${name}" bei! Code: ${code}\nhttps://hast-du-schon-ausgenutzt.vercel.app`,
+      });
+    } catch(e) {}
+  } else {
+    navigator.clipboard.writeText(code).then(() => showToast('Code kopiert!'));
+  }
+}
+
+async function leaveGroup(groupId) {
+  if (!confirm('Gruppe wirklich verlassen?')) return;
+  try {
+    await api('/api/groups?action=leave', { method: 'POST', body: { groupId } });
+    showToast('Gruppe verlassen');
+    loadMyGroups();
+  } catch(e) {
+    alert(e.message);
+  }
+}
+
+async function loadMyGroups() {
+  if (!currentUser) return;
+
+  const lbNoGroups = document.getElementById('lbNoGroups');
+  const lbGroups = document.getElementById('lbGroups');
+  const lbGroupActions = document.getElementById('lbGroupActions');
+
+  try {
+    const data = await api('/api/groups?action=mine');
+
+    if (data.groups.length === 0) {
+      lbNoGroups.style.display = 'block';
+      lbGroups.style.display = 'none';
+      lbGroupActions.style.display = 'none';
+      return;
+    }
+
+    lbNoGroups.style.display = 'none';
+    lbGroups.style.display = 'block';
+    lbGroupActions.style.display = 'block';
+
+    // Load leaderboard for each group
+    let html = '';
+    for (const group of data.groups) {
+      try {
+        const lb = await api(`/api/groups?action=leaderboard&code=${group.code}`);
+        html += renderGroupLeaderboard(group, lb.leaderboard);
+      } catch(e) {
+        html += `<div class="lb-group-card"><div class="lb-group-name">${group.name}</div><div class="empty-state-sub">Fehler beim Laden</div></div>`;
+      }
+    }
+
+    lbGroups.innerHTML = html;
+  } catch(e) {
+    lbNoGroups.style.display = 'block';
+    lbGroups.style.display = 'none';
+  }
+}
+
+function renderGroupLeaderboard(group, entries) {
+  const ticketPriceMap = {};
+  ticketTypes.forEach(t => { ticketPriceMap[t.id] = t.price; });
+
+  let entriesHtml = entries.map(e => {
+    const tp = ticketPriceMap[e.ticketType] || 727;
+    const pct = Math.min(Math.round((e.totalValue / tp) * 100), 999);
+    const rankClass = e.rank === 1 ? 'gold' : e.rank === 2 ? 'silver' : e.rank === 3 ? 'bronze' : '';
+    const rankIcon = e.rank === 1 ? '\uD83D\uDC51' : e.rank;
+    const meClass = e.isMe ? 'me' : '';
+
+    return `<div class="lb-entry ${meClass}">
+      <div class="lb-rank ${rankClass}">${rankIcon}</div>
+      <div class="lb-name">${e.displayName}${e.isMe ? ' (du)' : ''}</div>
+      <div>
+        <span class="lb-value">\u20AC${e.totalValue.toFixed(0)}</span>
+        <span class="lb-percent">${pct}%</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  if (entries.length === 0) {
+    entriesHtml = '<div class="empty-state-sub" style="padding:16px;text-align:center">Noch keine Mitglieder</div>';
+  }
+
+  return `<div class="lb-group-card">
+    <div class="lb-group-header">
+      <div class="lb-group-name">${group.name}</div>
+      <button class="lb-group-code" onclick="shareGroupCode('${group.code}','${group.name.replace(/'/g, "\\'")}');" title="Code teilen">${group.code}</button>
+    </div>
+    ${entriesHtml}
+    <div class="lb-actions">
+      <button class="lb-action-btn lb-share-btn" onclick="shareGroupCode('${group.code}','${group.name.replace(/'/g, "\\'")}');">Code teilen</button>
+      <button class="lb-action-btn lb-leave-btn" onclick="leaveGroup(${group.id})">Verlassen</button>
+    </div>
+  </div>`;
+}
+
+// ========== TOAST ==========
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
 
 // ========== CELEBRATION ==========
 function celebrate() {
@@ -1237,7 +2003,6 @@ function celebrate() {
     container.appendChild(confetto);
   }
 
-  // Add keyframes if not already added
   if (!document.getElementById('confettiStyle')) {
     const style = document.createElement('style');
     style.id = 'confettiStyle';
@@ -1251,9 +2016,8 @@ function celebrate() {
   }
 
   setTimeout(() => { container.innerHTML = ''; }, 4000);
-
   setTimeout(() => {
-    alert('🎉 Gratulation! Du hast dein Freizeitticket voll ausgenutzt! Ab jetzt sparst du mit jedem Besuch bares Geld!');
+    alert('\uD83C\uDF89 Gratulation! Du hast dein Freizeitticket voll ausgenutzt! Ab jetzt sparst du mit jedem Besuch bares Geld!');
   }, 500);
 }
 
@@ -1267,7 +2031,6 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  // Show a subtle install banner
   const banner = document.createElement('div');
   banner.id = 'installBanner';
   banner.style.cssText = `
@@ -1279,14 +2042,13 @@ window.addEventListener('beforeinstallprompt', (e) => {
     box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   `;
   banner.innerHTML = `
-    <span>📲 Als App installieren?</span>
+    <span>\uD83D\uDCF2 Als App installieren?</span>
     <div>
       <button onclick="installApp()" style="background:#E8871E;color:white;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:12px;margin-right:8px">Installieren</button>
       <button onclick="dismissInstall()" style="background:rgba(255,255,255,0.2);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px">Nein</button>
     </div>
   `;
   document.body.appendChild(banner);
-  // Push content down
   document.querySelector('.header').style.marginTop = '52px';
 });
 
@@ -1303,6 +2065,19 @@ function dismissInstall() {
   if (banner) banner.remove();
   document.querySelector('.header').style.marginTop = '';
 }
+
+// ========== KEYBOARD SUPPORT ==========
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('authModal').classList.contains('active')) {
+      if (document.getElementById('authLoginForm').style.display !== 'none') {
+        handleLogin();
+      } else {
+        handleRegister();
+      }
+    }
+  }
+});
 
 // ========== START ==========
 init();
