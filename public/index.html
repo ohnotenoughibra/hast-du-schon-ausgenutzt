@@ -1797,7 +1797,10 @@
         </div>
         <div class="form-group">
           <label class="form-label">Passwort</label>
-          <input type="password" class="form-input" id="loginPassword" placeholder="Passwort">
+          <div style="position:relative">
+            <input type="password" class="form-input" id="loginPassword" placeholder="Passwort" style="padding-right:48px">
+            <button type="button" onclick="togglePasswordVisibility('loginPassword', this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;padding:4px;color:var(--ftt-text-light)">&#128065;</button>
+          </div>
         </div>
         <button class="btn-submit" onclick="handleLogin()" id="loginBtn">Anmelden</button>
         <div style="text-align:center;margin-top:12px">
@@ -1857,7 +1860,10 @@
         </div>
         <div class="form-group">
           <label class="form-label">Passwort</label>
-          <input type="password" class="form-input" id="registerPassword" placeholder="Mind. 6 Zeichen">
+          <div style="position:relative">
+            <input type="password" class="form-input" id="registerPassword" placeholder="Mind. 6 Zeichen" style="padding-right:48px">
+            <button type="button" onclick="togglePasswordVisibility('registerPassword', this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;padding:4px;color:var(--ftt-text-light)">&#128065;</button>
+          </div>
         </div>
         <button class="btn-submit" onclick="handleRegister()" id="registerBtn">Konto erstellen</button>
       </div>
@@ -2484,6 +2490,17 @@ async function handleLogout() {
   updateAuthUI();
   switchView('viewTracker');
   showToast('Abgemeldet');
+}
+
+function togglePasswordVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '\uD83D\uDE48';
+  } else {
+    input.type = 'password';
+    btn.textContent = '\uD83D\uDC41';
+  }
 }
 
 function showAuthError(msg) {
