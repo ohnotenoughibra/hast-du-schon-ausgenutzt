@@ -2,8 +2,15 @@ const { getSQL } = require('./_lib/db');
 const bcrypt = require('bcryptjs');
 const { createToken, verifyToken, setAuthCookie, clearAuthCookie } = require('./_lib/auth');
 
+const crypto = require('crypto');
+
 function generateCode() {
   return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function constantTimeEqual(a, b) {
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
 }
 
 async function sendResetEmail(email, code) {
@@ -130,7 +137,8 @@ module.exports = async function handler(req, res) {
         return res.status(429).json({ error: 'Zu viele Anfragen. Bitte warte eine Stunde.' });
       }
 
-      // Invalidate any existing unused codes
+      // Clean up expired codes and invalidate existing unused ones
+      await sql`DELETE FROM reset_codes WHERE expires_at < NOW()`;
       await sql`UPDATE reset_codes SET used = TRUE WHERE user_id = ${user.id} AND used = FALSE`;
 
       // Generate and store new code
@@ -194,7 +202,7 @@ module.exports = async function handler(req, res) {
       await sql`UPDATE reset_codes SET attempts = attempts + 1 WHERE id = ${resetRow.id}`;
 
       // Verify code (constant-time comparison)
-      const codeMatch = code.trim() === resetRow.code;
+      const codeMatch = constantTimeEqual(code.trim(), resetRow.code);
       if (!codeMatch) {
         const remaining = 4 - resetRow.attempts;
         return res.status(400).json({ error: `Ungültiger Code. ${remaining > 0 ? remaining + ' Versuche übrig.' : 'Fordere einen neuen Code an.'}` });
@@ -313,7 +321,8 @@ module.exports = async function handler(req, res) {
 };
 
 async function isAdmin(sql, userId) {
-  const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase());
+  const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(e => e.length > 0);
+  if (adminEmails.length === 0) return false;
   const rows = await sql`SELECT email FROM users WHERE id = ${userId}`;
   if (rows.length === 0) return false;
   return adminEmails.includes(rows[0].email.toLowerCase());

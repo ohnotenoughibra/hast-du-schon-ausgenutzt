@@ -2184,6 +2184,20 @@ async function init() {
     isOnline = true;
     state.ticketType = currentUser.ticketType || state.ticketType;
 
+    // Check for offline activities that need syncing
+    const offlineActivities = (state.activities || []).filter(a => a._offline);
+    if (offlineActivities.length > 0) {
+      let synced = 0;
+      for (const a of offlineActivities) {
+        try {
+          const copy = { venueId: a.venueId, venueName: a.venueName, category: a.category, icon: a.icon, price: a.price, date: a.date, hours: a.hours };
+          await api('/api/activities', { method: 'POST', body: copy });
+          synced++;
+        } catch(e) {}
+      }
+      if (synced > 0) showToast(`${synced} Offline-Aktivit\u00E4t${synced > 1 ? 'en' : ''} synchronisiert`);
+    }
+
     // Load activities from DB — this is the source of truth
     const actData = await api('/api/activities');
     state.activities = actData.activities;
@@ -2194,7 +2208,6 @@ async function init() {
     updateAuthUI();
   } catch(e) {
     // Not logged in or network error — keep showing localStorage data
-    // Show offline warning if we had a session before but can't reach API
     if (state.activities && state.activities.length > 0 && e.message === 'Keine Internetverbindung') {
       showToast('Offline \u2014 zeige gespeicherte Daten');
     }
@@ -2685,6 +2698,10 @@ async function addActivity() {
   if (!venue) return;
 
   const date = document.getElementById('activityDate').value;
+  if (!date || isNaN(new Date(date).getTime())) {
+    showToast('Bitte ein g\u00FCltiges Datum eingeben');
+    return;
+  }
   const hours = parseFloat(document.getElementById('activityHours').value) || 4;
 
   // Check limited venues
@@ -2715,8 +2732,10 @@ async function addActivity() {
       const data = await api('/api/activities', { method: 'POST', body: activity });
       activity.id = data.activity.id;
     } catch(e) {
-      alert('Fehler beim Speichern: ' + e.message);
-      return;
+      // Save locally and mark for sync later
+      activity.id = Date.now();
+      activity._offline = true;
+      showToast('Offline gespeichert \u2014 wird automatisch synchronisiert');
     }
   } else {
     activity.id = Date.now();
