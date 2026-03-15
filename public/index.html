@@ -2804,6 +2804,7 @@ async function removeAvatar() {
     await api('/api/auth?action=avatar', { method: 'POST', body: { avatar: '' } });
     currentUser.avatar = null;
     updateAvatarDisplays();
+    markLeaderboardDirty();
     showToast('Profilbild entfernt');
   } catch(e) { showToast('Fehler: ' + e.message); }
 }
@@ -2822,6 +2823,7 @@ async function handleAvatarUpload(e) {
 
     currentUser.avatar = dataUrl;
     updateAvatarDisplays();
+    markLeaderboardDirty();
     showToast('Profilbild gespeichert!');
   } catch(err) {
     showToast('Fehler: ' + err.message);
