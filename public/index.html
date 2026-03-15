@@ -53,6 +53,7 @@
   .header {
     background: linear-gradient(135deg, var(--ftt-blue) 0%, var(--ftt-blue-deep) 100%);
     padding: 0;
+    padding-top: env(safe-area-inset-top, 0px);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -189,7 +190,7 @@
   .app {
     max-width: 500px;
     margin: 0 auto;
-    padding: 20px 16px 100px;
+    padding: 20px 16px calc(100px + env(safe-area-inset-bottom, 0px));
   }
 
   .view { display: none; }
@@ -409,7 +410,7 @@
   /* ========== FAB ========== */
   .fab {
     position: fixed;
-    bottom: 80px;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
     background: linear-gradient(135deg, var(--ftt-orange), var(--ftt-orange-dark));
@@ -499,7 +500,7 @@
     color: var(--ftt-text);
   }
 
-  .modal-body { padding: 20px 24px 32px; }
+  .modal-body { padding: 20px 24px calc(32px + env(safe-area-inset-bottom, 0px)); }
 
   /* ========== FORM ========== */
   .form-group { margin-bottom: 18px; }
@@ -857,7 +858,7 @@
   /* ========== RESPONSIVE: TABLET (600-899px) ========== */
   @media (min-width: 600px) {
     .header-inner { max-width: 700px; }
-    .app { max-width: 700px; padding: 24px 24px 100px; }
+    .app { max-width: 700px; padding: 24px 24px calc(100px + env(safe-area-inset-bottom, 0px)); }
     .bottom-nav-inner { max-width: 700px; }
     .hero-value { font-size: 64px; }
     .hero-card { padding: 32px 28px; }
@@ -1335,7 +1336,7 @@
   /* ========== TOAST ========== */
   .toast {
     position: fixed;
-    bottom: 100px;
+    bottom: calc(100px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: var(--ftt-text);
