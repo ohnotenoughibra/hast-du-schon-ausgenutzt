@@ -47,6 +47,8 @@
     color: var(--ftt-text);
     min-height: 100vh;
     overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
   }
 
   /* ========== HEADER ========== */
@@ -179,12 +181,15 @@
     font-size: 10px;
     font-weight: 600;
     cursor: pointer;
-    transition: color 0.2s;
+    transition: color 0.15s, transform 0.1s;
     gap: 3px;
+    -webkit-tap-highlight-color: transparent;
   }
 
+  .nav-tab:active { transform: scale(0.9); }
   .nav-tab.active { color: var(--ftt-blue-deep); }
-  .nav-tab-icon { font-size: 22px; }
+  .nav-tab-icon { font-size: 22px; transition: transform 0.15s; }
+  .nav-tab.active .nav-tab-icon { transform: scale(1.1); }
 
   /* ========== MAIN ========== */
   .app {
@@ -193,8 +198,15 @@
     padding: 20px 16px calc(100px + env(safe-area-inset-bottom, 0px));
   }
 
-  .view { display: none; }
+  .view {
+    display: none;
+    animation: viewFadeIn 0.2s ease;
+  }
   .view.active { display: block; }
+  @keyframes viewFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
   /* ========== HERO CARD ========== */
   .hero-card {
@@ -354,11 +366,13 @@
     align-items: center;
     gap: 14px;
     box-shadow: var(--shadow);
-    transition: transform 0.15s;
+    transition: transform 0.12s ease, opacity 0.12s;
     position: relative;
+    -webkit-tap-highlight-color: transparent;
+    will-change: transform;
   }
 
-  .activity-item:active { transform: scale(0.98); }
+  .activity-item:active { transform: scale(0.97); }
 
   .activity-icon-wrap {
     width: 44px;
@@ -449,9 +463,11 @@
     justify-content: center;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
+    animation: overlayFadeIn 0.2s ease;
   }
 
   .modal-overlay.active { display: flex; }
+  @keyframes overlayFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
   .modal {
     background: white;
@@ -460,12 +476,17 @@
     max-width: 500px;
     max-height: 90vh;
     overflow-y: auto;
-    animation: slideUp 0.3s ease;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    animation: slideUp 0.25s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   @keyframes slideUp {
     from { transform: translateY(100%); }
     to { transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .view, .modal, .modal-overlay { animation: none !important; }
   }
 
   .modal-handle {
@@ -550,6 +571,7 @@
   .venue-list {
     max-height: 200px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     border: 2px solid #E8ECF0;
     border-radius: var(--radius-sm);
     background: white;
@@ -2280,9 +2302,16 @@ function updateAuthUI() {
 }
 
 // ========== VIEW SWITCHING ==========
+const _scrollPositions = {};
+let _currentView = 'viewTracker';
+
 function switchView(viewId) {
+  // Save scroll position of current view
+  _scrollPositions[_currentView] = window.scrollY;
+
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById(viewId).classList.add('active');
+  _currentView = viewId;
 
   // Update both bottom nav and sidebar tabs
   document.querySelectorAll('.nav-tab, .sidebar-tab').forEach(t => {
@@ -2291,6 +2320,11 @@ function switchView(viewId) {
 
   const fab = document.getElementById('fab');
   fab.style.display = viewId === 'viewTracker' ? 'flex' : 'none';
+
+  // Restore scroll position
+  requestAnimationFrame(() => {
+    window.scrollTo(0, _scrollPositions[viewId] || 0);
+  });
 
   if (viewId === 'viewLeaderboard' && currentUser) {
     loadMyGroups(true);
