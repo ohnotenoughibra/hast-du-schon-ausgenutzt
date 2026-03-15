@@ -2654,12 +2654,10 @@ async function loadAdminUsers() {
 }
 
 async function adminResetPassword(userId, name) {
-  const newPw = prompt(`Neues Passwort f\u00FCr ${name}:`);
-  if (!newPw) return;
-  if (newPw.length < 6) { showToast('Mind. 6 Zeichen'); return; }
+  if (!confirm(`Passwort f\u00FCr ${name} auf "123456" zur\u00FCcksetzen?`)) return;
   try {
-    await api('/api/auth?action=admin-reset', { method: 'POST', body: { userId, newPassword: newPw } });
-    showToast(`Passwort f\u00FCr ${name} zur\u00FCckgesetzt`);
+    await api('/api/auth?action=admin-reset', { method: 'POST', body: { userId, newPassword: '123456' } });
+    showToast(`Passwort f\u00FCr ${name} auf 123456 gesetzt`);
   } catch(e) {
     showToast('Fehler: ' + e.message);
   }
