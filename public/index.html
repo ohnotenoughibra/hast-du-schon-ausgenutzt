@@ -1992,16 +1992,24 @@ const venues = [
 
 // Ticket types 2025/26 season
 const ticketTypes = [
-  { id: 'adult_pre', name: 'Erwachsene (Vorverkauf)', price: 759 },
-  { id: 'adult', name: 'Erwachsene (Regul\u00E4r)', price: 873 },
-  { id: 'u23_pre', name: 'U23 (Vorverkauf)', price: 683 },
-  { id: 'u23', name: 'U23 (Regul\u00E4r)', price: 786 },
-  { id: 'youth_pre', name: 'Jugend (Vorverkauf)', price: 607 },
-  { id: 'youth', name: 'Jugend (Regul\u00E4r)', price: 698 },
-  { id: 'child_pre', name: 'Kinder (Vorverkauf)', price: 395 },
-  { id: 'child', name: 'Kinder (Regul\u00E4r)', price: 454 },
-  { id: 'senior_pre', name: 'Senior 65+ (Vorverkauf)', price: 721 },
-  { id: 'senior', name: 'Senior 65+ (Regul\u00E4r)', price: 829 },
+  // Einzeltickets
+  { id: 'adult_pre', name: 'Erwachsene (Vorverkauf)', price: 759, group: 'Einzelticket' },
+  { id: 'adult', name: 'Erwachsene (Regul\u00E4r)', price: 873, group: 'Einzelticket' },
+  { id: 'u23_pre', name: 'U23 (Vorverkauf)', price: 683, group: 'Einzelticket' },
+  { id: 'u23', name: 'U23 (Regul\u00E4r)', price: 786, group: 'Einzelticket' },
+  { id: 'youth_pre', name: 'Jugend (Vorverkauf)', price: 607, group: 'Einzelticket' },
+  { id: 'youth', name: 'Jugend (Regul\u00E4r)', price: 698, group: 'Einzelticket' },
+  { id: 'child_pre', name: 'Kinder (Vorverkauf)', price: 395, group: 'Einzelticket' },
+  { id: 'child', name: 'Kinder (Regul\u00E4r)', price: 454, group: 'Einzelticket' },
+  { id: 'senior_pre', name: 'Senior 65+ (Vorverkauf)', price: 721, group: 'Einzelticket' },
+  { id: 'senior', name: 'Senior 65+ (Regul\u00E4r)', price: 829, group: 'Einzelticket' },
+  // Familienkombi (1 Erwachsener + Kind gleichzeitig kaufen)
+  { id: 'fam_child_pre', name: 'Kind Familien-Kombi (Vorverkauf)', price: 143, group: 'Familien-Kombi' },
+  { id: 'fam_child', name: 'Kind Familien-Kombi (Regul\u00E4r)', price: 164, group: 'Familien-Kombi' },
+  { id: 'fam_youth_pre', name: 'Jugend Familien-Kombi (Vorverkauf)', price: 364, group: 'Familien-Kombi' },
+  { id: 'fam_youth', name: 'Jugend Familien-Kombi (Regul\u00E4r)', price: 419, group: 'Familien-Kombi' },
+  { id: 'fam_u23_pre', name: 'U23 Familien-Kombi (Vorverkauf)', price: 478, group: 'Familien-Kombi' },
+  { id: 'fam_u23', name: 'U23 Familien-Kombi (Regul\u00E4r)', price: 550, group: 'Familien-Kombi' },
 ];
 
 // ========== STATE ==========
@@ -2786,13 +2794,24 @@ function closeAddModal() {
 
 function openSettings() {
   const container = document.getElementById('ticketTypeCards');
-  container.innerHTML = ticketTypes.map(t => {
+  let html = '';
+  let lastGroup = '';
+  ticketTypes.forEach(t => {
+    if (t.group !== lastGroup) {
+      lastGroup = t.group;
+      const desc = t.group === 'Familien-Kombi' ? 'Preis pro Kind/Jugendlicher bei gleichzeitigem Kauf mit 1 Erwachsenen-Ticket' : '';
+      html += `<div style="margin-top:${html ? '16px' : '0'};margin-bottom:6px">
+        <div style="font-size:12px;font-weight:800;color:var(--ftt-text);text-transform:uppercase;letter-spacing:1px">${esc(t.group)}</div>
+        ${desc ? `<div style="font-size:10px;color:var(--ftt-text-light);margin-top:2px">${desc}</div>` : ''}
+      </div>`;
+    }
     const sel = state.ticketType === t.id ? 'selected' : '';
-    return `<div class="ticket-type-card ${sel}" onclick="selectTicketType('${t.id}', this)">
+    html += `<div class="ticket-type-card ${sel}" onclick="selectTicketType('${t.id}', this)">
       <span class="ticket-type-name">${t.name}</span>
       <span class="ticket-type-price">\u20AC${t.price}</span>
     </div>`;
-  }).join('');
+  });
+  container.innerHTML = html;
   document.getElementById('settingsModal').classList.add('active');
 }
 
