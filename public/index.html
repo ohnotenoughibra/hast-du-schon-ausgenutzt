@@ -2695,7 +2695,7 @@ async function adminDeleteUser(userId, name) {
 // ========== AVATAR ==========
 function showAvatarOptions() {
   const actions = [
-    { label: '\uD83E\uDD33 Selfie aufnehmen', action: () => document.getElementById('avatarInputSelfie').click() },
+    { label: '\uD83D\uDCF7 Webcam / Selfie', action: openWebcamCapture },
     { label: '\uD83D\uDDBC\uFE0F Aus Galerie w\u00E4hlen', action: () => document.getElementById('avatarInputGallery').click() },
   ];
   if (currentUser && currentUser.avatar) {
@@ -2725,6 +2725,78 @@ function showAvatarOptions() {
   });
 
   document.body.appendChild(sheet);
+}
+
+async function openWebcamCapture() {
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 640 } });
+  } catch(e) {
+    // Webcam not available — fall back to file input with capture
+    document.getElementById('avatarInputSelfie').click();
+    return;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'webcamOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:260;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:overlayFadeIn 0.2s ease';
+
+  const video = document.createElement('video');
+  video.srcObject = stream;
+  video.autoplay = true;
+  video.playsInline = true;
+  video.muted = true;
+  video.style.cssText = 'width:280px;height:280px;object-fit:cover;border-radius:50%;border:4px solid white;transform:scaleX(-1)';
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:16px;margin-top:24px';
+
+  const captureBtn = document.createElement('button');
+  captureBtn.style.cssText = 'width:64px;height:64px;border-radius:50%;border:4px solid white;background:var(--ftt-orange);cursor:pointer;transition:transform 0.1s;-webkit-tap-highlight-color:transparent';
+  captureBtn.onmousedown = () => captureBtn.style.transform = 'scale(0.9)';
+  captureBtn.onmouseup = () => captureBtn.style.transform = '';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Abbrechen';
+  cancelBtn.style.cssText = 'background:none;border:none;color:white;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;padding:12px 20px';
+
+  captureBtn.onclick = async () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128; canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    // Mirror + center crop
+    const vw = video.videoWidth, vh = video.videoHeight;
+    const min = Math.min(vw, vh);
+    const sx = (vw - min) / 2, sy = (vh - min) / 2;
+    ctx.translate(128, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, sx, sy, min, min, 0, 0, 128, 128);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+    stream.getTracks().forEach(t => t.stop());
+    overlay.remove();
+
+    try {
+      showToast('Wird gespeichert...');
+      await api('/api/auth?action=avatar', { method: 'POST', body: { avatar: dataUrl } });
+      currentUser.avatar = dataUrl;
+      updateAvatarDisplays();
+      showToast('Profilbild gespeichert!');
+    } catch(err) {
+      showToast('Fehler: ' + err.message);
+    }
+  };
+
+  cancelBtn.onclick = () => {
+    stream.getTracks().forEach(t => t.stop());
+    overlay.remove();
+  };
+
+  btnRow.appendChild(captureBtn);
+  overlay.appendChild(video);
+  overlay.appendChild(btnRow);
+  overlay.appendChild(cancelBtn);
+  document.body.appendChild(overlay);
 }
 
 async function removeAvatar() {
