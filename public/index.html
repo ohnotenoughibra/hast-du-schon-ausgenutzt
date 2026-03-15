@@ -4194,23 +4194,36 @@ function celebrate() {
 // ========== SERVICE WORKER + UPDATE ==========
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').then(reg => {
-    // Check for updates every 5 minutes
-    setInterval(() => reg.update(), 5 * 60 * 1000);
+    // Check for updates immediately, then every 2 minutes
+    reg.update();
+    setInterval(() => reg.update(), 2 * 60 * 1000);
 
     reg.addEventListener('updatefound', () => {
       const newWorker = reg.installing;
+      if (!newWorker) return;
       newWorker.addEventListener('statechange', () => {
-        if (newWorker.state === 'activated') {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          // New SW installed but waiting — tell it to activate immediately
+          newWorker.postMessage('SKIP_WAITING');
           showUpdateBanner();
         }
       });
     });
   }).catch(() => {});
 
-  // Listen for SW_UPDATED message
+  // Listen for SW_UPDATED message or controller change
   navigator.serviceWorker.addEventListener('message', (e) => {
     if (e.data && e.data.type === 'SW_UPDATED') {
       showUpdateBanner();
+    }
+  });
+
+  // Auto-reload when new SW takes control
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      location.reload();
     }
   });
 }
