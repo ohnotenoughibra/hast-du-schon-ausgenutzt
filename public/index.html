@@ -1513,6 +1513,7 @@
         </div>
         <button class="btn-outline" onclick="openEditNameModal()" style="margin-top:0;font-size:13px">Name bearbeiten</button>
         <button class="btn-outline" onclick="openChangePasswordModal()" style="margin-top:8px;font-size:13px">Passwort &auml;ndern</button>
+        <button class="btn-outline" onclick="exportData()" style="margin-top:8px;font-size:13px">&#128190; Daten exportieren</button>
       </div>
 
       <button class="btn-danger-outline" onclick="handleLogout()">Abmelden</button>
@@ -2039,10 +2040,22 @@ async function api(path, opts = {}) {
 
 // ========== INIT ==========
 async function init() {
-  // Load localStorage state
+  // 1. Always load localStorage first — never show empty state if we have cached data
   const saved = localStorage.getItem('ftt_state');
   if (saved) {
     try { state = JSON.parse(saved); } catch(e) {}
+  }
+
+  // Also load a separate backup cache (in case main state gets corrupted)
+  const backup = localStorage.getItem('ftt_backup');
+  if ((!state.activities || state.activities.length === 0) && backup) {
+    try {
+      const backupState = JSON.parse(backup);
+      if (backupState.activities && backupState.activities.length > 0) {
+        state.activities = backupState.activities;
+        state.ticketType = backupState.ticketType || state.ticketType;
+      }
+    } catch(e) {}
   }
 
   document.getElementById('activityDate').value = new Date().toISOString().split('T')[0];
@@ -2050,28 +2063,44 @@ async function init() {
   renderActivities();
   updateDashboard();
 
-  // Try to restore session
+  // 2. Try to restore session and load from DB
   try {
     const data = await api('/api/auth?action=me');
     currentUser = data.user;
     isOnline = true;
     state.ticketType = currentUser.ticketType || state.ticketType;
 
-    // Load activities from DB
+    // Load activities from DB — this is the source of truth
     const actData = await api('/api/activities');
     state.activities = actData.activities;
     save();
+    saveBackup();
     renderActivities();
     updateDashboard();
     updateAuthUI();
   } catch(e) {
-    // Not logged in, use localStorage
+    // Not logged in or network error — keep showing localStorage data
+    // Show offline warning if we had a session before but can't reach API
+    if (state.activities && state.activities.length > 0 && e.message === 'Keine Internetverbindung') {
+      showToast('Offline \u2014 zeige gespeicherte Daten');
+    }
     updateAuthUI();
   }
 }
 
 function save() {
   localStorage.setItem('ftt_state', JSON.stringify(state));
+}
+
+function saveBackup() {
+  // Separate backup that only gets written when we have confirmed DB data
+  if (state.activities && state.activities.length > 0) {
+    localStorage.setItem('ftt_backup', JSON.stringify({
+      activities: state.activities,
+      ticketType: state.ticketType,
+      savedAt: new Date().toISOString(),
+    }));
+  }
 }
 
 // ========== AUTH UI ==========
@@ -2186,6 +2215,7 @@ async function handleLogin() {
     state.activities = actData.activities;
     state.ticketType = currentUser.ticketType || state.ticketType;
     save();
+    saveBackup();
     renderActivities();
     updateDashboard();
     updateAuthUI();
@@ -2244,6 +2274,7 @@ async function handleRegister() {
     const actData = await api('/api/activities');
     state.activities = actData.activities;
     save();
+    saveBackup();
     renderActivities();
     updateDashboard();
     updateAuthUI();
@@ -2359,6 +2390,34 @@ async function handleResetPassword() {
     btn.disabled = false;
     btn.textContent = 'Passwort \u00E4ndern';
   }
+}
+
+// ========== DATA EXPORT ==========
+function exportData() {
+  const exportObj = {
+    exportDate: new Date().toISOString(),
+    user: currentUser ? { displayName: currentUser.displayName, email: currentUser.email } : null,
+    ticketType: state.ticketType,
+    activities: state.activities.map(a => ({
+      venue: a.venueName,
+      category: a.category,
+      price: a.price,
+      date: a.date,
+      hours: a.hours,
+    })),
+    totalValue: state.activities.reduce((s, a) => s + a.price, 0),
+    activityCount: state.activities.length,
+  };
+
+  const json = JSON.stringify(exportObj, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = `freizeitticket-backup-${new Date().toISOString().split('T')[0]}.json`;
+  link.href = url;
+  link.click();
+  URL.revokeObjectURL(url);
+  showToast('Backup gespeichert!');
 }
 
 // ========== ADMIN PANEL ==========
@@ -2547,6 +2606,7 @@ async function addActivity() {
 
   state.activities.unshift(activity);
   save();
+  saveBackup();
   closeAddModal();
   renderActivities();
   updateDashboard();
@@ -2579,7 +2639,21 @@ async function deleteActivity(id) {
 }
 
 async function clearAll() {
-  if (!confirm('Alle Aktivit\u00E4ten l\u00F6schen?')) return;
+  const count = state.activities.length;
+  if (count === 0) return;
+
+  const input = prompt(`ACHTUNG: ${count} Aktivit\u00E4ten werden unwiderruflich gel\u00F6scht.\n\nTippe L\u00D6SCHEN um zu best\u00E4tigen:`);
+  if (input !== 'L\u00D6SCHEN') {
+    if (input !== null) showToast('Abgebrochen \u2014 tippe genau L\u00D6SCHEN');
+    return;
+  }
+
+  // Save backup before deleting
+  localStorage.setItem('ftt_before_clear', JSON.stringify({
+    activities: state.activities,
+    clearedAt: new Date().toISOString(),
+  }));
+
   if (isOnline) {
     try {
       await Promise.all(state.activities.map(a => api('/api/activities', { method: 'DELETE', body: { id: a.id } }).catch(() => {})));
@@ -2590,6 +2664,7 @@ async function clearAll() {
   renderActivities();
   updateDashboard();
   markLeaderboardDirty();
+  showToast(`${count} Aktivit\u00E4ten gel\u00F6scht`);
 }
 
 // ========== RENDER ==========
