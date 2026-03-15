@@ -59,10 +59,10 @@ module.exports = async function handler(req, res) {
     const payload = verifyToken(req);
     if (!payload) return res.status(401).json({ error: 'Nicht angemeldet' });
     try {
-      const rows = await sql`SELECT id, email, display_name, ticket_type FROM users WHERE id = ${payload.userId}`;
+      const rows = await sql`SELECT id, email, display_name, ticket_type, avatar FROM users WHERE id = ${payload.userId}`;
       if (rows.length === 0) return res.status(401).json({ error: 'Benutzer nicht gefunden' });
       const u = rows[0];
-      return res.status(200).json({ user: { id: u.id, email: u.email, displayName: u.display_name, ticketType: u.ticket_type } });
+      return res.status(200).json({ user: { id: u.id, email: u.email, displayName: u.display_name, ticketType: u.ticket_type, avatar: u.avatar || null } });
     } catch (e) {
       return res.status(500).json({ error: 'Fehler beim Laden' });
     }
@@ -75,12 +75,12 @@ module.exports = async function handler(req, res) {
     const { email, password } = req.body || {};
     if (!email || !password) return res.status(400).json({ error: 'Email und Passwort erforderlich' });
     try {
-      const rows = await sql`SELECT id, email, password_hash, display_name, ticket_type FROM users WHERE email = ${email.toLowerCase().trim()}`;
+      const rows = await sql`SELECT id, email, password_hash, display_name, ticket_type, avatar FROM users WHERE email = ${email.toLowerCase().trim()}`;
       if (rows.length === 0) return res.status(401).json({ error: 'Ungültige Anmeldedaten' });
       const user = rows[0];
       if (!(await bcrypt.compare(password, user.password_hash))) return res.status(401).json({ error: 'Ungültige Anmeldedaten' });
       setAuthCookie(res, createToken(user.id));
-      return res.status(200).json({ user: { id: user.id, email: user.email, displayName: user.display_name, ticketType: user.ticket_type } });
+      return res.status(200).json({ user: { id: user.id, email: user.email, displayName: user.display_name, ticketType: user.ticket_type, avatar: user.avatar || null } });
     } catch (e) {
       return res.status(500).json({ error: 'Anmeldung fehlgeschlagen' });
     }
@@ -102,7 +102,7 @@ module.exports = async function handler(req, res) {
       `;
       const u = rows[0];
       setAuthCookie(res, createToken(u.id));
-      return res.status(201).json({ user: { id: u.id, email: u.email, displayName: u.display_name, ticketType: u.ticket_type } });
+      return res.status(201).json({ user: { id: u.id, email: u.email, displayName: u.display_name, ticketType: u.ticket_type, avatar: u.avatar || null } });
     } catch (e) {
       return res.status(500).json({ error: 'Registrierung fehlgeschlagen' });
     }
@@ -221,6 +221,23 @@ module.exports = async function handler(req, res) {
     }
   }
 
+  // POST /api/auth?action=avatar
+  if (action === 'avatar') {
+    const payload = verifyToken(req);
+    if (!payload) return res.status(401).json({ error: 'Nicht angemeldet' });
+    const { avatar } = req.body || {};
+    if (!avatar) return res.status(400).json({ error: 'Bild erforderlich' });
+    // Max ~100KB base64 (roughly a 50KB image)
+    if (avatar.length > 150000) return res.status(400).json({ error: 'Bild zu gro\u00DF (max 100KB)' });
+    if (!avatar.startsWith('data:image/')) return res.status(400).json({ error: 'Ung\u00FCltiges Bildformat' });
+    try {
+      await sql`UPDATE users SET avatar = ${avatar} WHERE id = ${payload.userId}`;
+      return res.status(200).json({ ok: true, avatar });
+    } catch (e) {
+      return res.status(500).json({ error: 'Fehler beim Speichern' });
+    }
+  }
+
   // POST /api/auth?action=change-password
   if (action === 'change-password') {
     const payload = verifyToken(req);
@@ -250,9 +267,9 @@ module.exports = async function handler(req, res) {
     try {
       if (ticketType) await sql`UPDATE users SET ticket_type = ${ticketType} WHERE id = ${payload.userId}`;
       if (displayName) await sql`UPDATE users SET display_name = ${displayName.trim()} WHERE id = ${payload.userId}`;
-      const rows = await sql`SELECT id, email, display_name, ticket_type FROM users WHERE id = ${payload.userId}`;
+      const rows = await sql`SELECT id, email, display_name, ticket_type, avatar FROM users WHERE id = ${payload.userId}`;
       const u = rows[0];
-      return res.status(200).json({ user: { id: u.id, email: u.email, displayName: u.display_name, ticketType: u.ticket_type } });
+      return res.status(200).json({ user: { id: u.id, email: u.email, displayName: u.display_name, ticketType: u.ticket_type, avatar: u.avatar || null } });
     } catch (e) {
       return res.status(500).json({ error: 'Fehler beim Speichern' });
     }

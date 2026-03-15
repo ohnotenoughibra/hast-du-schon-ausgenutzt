@@ -751,6 +751,28 @@
   .lb-rank.silver { background: #E8ECF0; color: #5A6270; }
   .lb-rank.bronze { background: #FDEBD0; color: #935116; }
 
+  .lb-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .lb-avatar-initial {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ftt-blue), var(--ftt-blue-deep));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
   .lb-name { flex: 1; font-size: 14px; font-weight: 700; }
   .lb-value { font-size: 16px; font-weight: 800; color: var(--ftt-success); }
   .lb-percent { font-size: 11px; color: var(--ftt-text-light); font-weight: 600; margin-left: 4px; }
@@ -1597,7 +1619,11 @@
     <div id="profileLoggedIn" style="display:none">
       <div class="lb-group-card">
         <div style="text-align:center;margin-bottom:16px">
-          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--ftt-blue),var(--ftt-blue-deep));display:inline-flex;align-items:center;justify-content:center;font-size:28px;color:white;font-weight:900" id="profileAvatar">?</div>
+          <div style="position:relative;display:inline-block;cursor:pointer" onclick="document.getElementById('avatarInput').click()">
+            <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--ftt-blue),var(--ftt-blue-deep));display:flex;align-items:center;justify-content:center;font-size:30px;color:white;font-weight:900;overflow:hidden" id="profileAvatar">?</div>
+            <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--ftt-orange);display:flex;align-items:center;justify-content:center;font-size:12px;color:white;border:2px solid white">&#128247;</div>
+            <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+          </div>
           <div style="font-size:18px;font-weight:800;margin-top:10px" id="profileName">-</div>
           <div style="font-size:12px;color:var(--ftt-text-light);font-weight:500" id="profileEmail">-</div>
         </div>
@@ -2270,12 +2296,11 @@ function updateAuthUI() {
     profileNotLoggedIn.style.display = 'none';
     profileLoggedIn.style.display = 'block';
 
-    document.getElementById('profileAvatar').textContent = currentUser.displayName.charAt(0).toUpperCase();
     document.getElementById('profileName').textContent = currentUser.displayName;
     document.getElementById('profileEmail').textContent = currentUser.email;
+    updateAvatarDisplays();
 
     // Update sidebar
-    document.getElementById('sidebarAvatar').textContent = currentUser.displayName.charAt(0).toUpperCase();
     document.getElementById('sidebarUserName').textContent = currentUser.displayName;
     document.getElementById('sidebarUserEmail').textContent = currentUser.email;
     document.getElementById('sidebarUser').onclick = () => switchView('viewProfile');
@@ -2651,6 +2676,66 @@ async function adminDeleteUser(userId, name) {
 }
 
 // ========== CHANGE PASSWORD ==========
+// ========== AVATAR UPLOAD ==========
+async function handleAvatarUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { showToast('Nur Bilder erlaubt'); return; }
+  if (file.size > 500000) { showToast('Bild zu gro\u00DF (max 500KB)'); return; }
+
+  try {
+    // Resize to 128x128 and compress
+    const dataUrl = await resizeImage(file, 128);
+
+    showToast('Wird gespeichert...');
+    await api('/api/auth?action=avatar', { method: 'POST', body: { avatar: dataUrl } });
+
+    currentUser.avatar = dataUrl;
+    updateAvatarDisplays();
+    showToast('Profilbild gespeichert!');
+  } catch(err) {
+    showToast('Fehler: ' + err.message);
+  }
+}
+
+function resizeImage(file, maxSize) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      canvas.width = maxSize;
+      canvas.height = maxSize;
+      const ctx = canvas.getContext('2d');
+
+      // Center crop to square
+      const min = Math.min(img.width, img.height);
+      const sx = (img.width - min) / 2;
+      const sy = (img.height - min) / 2;
+      ctx.drawImage(img, sx, sy, min, min, 0, 0, maxSize, maxSize);
+
+      resolve(canvas.toDataURL('image/jpeg', 0.7));
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+function updateAvatarDisplays() {
+  const avatar = currentUser ? currentUser.avatar : null;
+  const initial = currentUser ? currentUser.displayName.charAt(0).toUpperCase() : '?';
+
+  const profileEl = document.getElementById('profileAvatar');
+  const sidebarEl = document.getElementById('sidebarAvatar');
+
+  if (avatar) {
+    profileEl.innerHTML = `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    sidebarEl.innerHTML = `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  } else {
+    profileEl.textContent = initial;
+    sidebarEl.textContent = initial;
+  }
+}
+
 function openChangePasswordModal() {
   document.getElementById('changePwOld').value = '';
   document.getElementById('changePwNew').value = '';
@@ -3371,8 +3456,13 @@ function renderGroupLeaderboard(group, entries) {
     const rankIcon = e.rank === 1 ? '\uD83D\uDC51' : e.rank;
     const meClass = e.isMe ? 'me' : '';
 
+    const avatarHtml = e.avatar
+      ? `<img class="lb-avatar" src="${e.avatar}" alt="">`
+      : `<div class="lb-avatar-initial">${esc(e.displayName.charAt(0).toUpperCase())}</div>`;
+
     return `<div class="lb-entry ${meClass}">
       <div class="lb-rank ${rankClass}">${rankIcon}</div>
+      ${avatarHtml}
       <div class="lb-name">${esc(e.displayName)}${e.isMe ? ' (du)' : ''}</div>
       <div>
         <span class="lb-value">\u20AC${e.totalValue.toFixed(0)}</span>

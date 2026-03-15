@@ -50,14 +50,14 @@ module.exports = async function handler(req, res) {
       if (membership.length === 0) return res.status(403).json({ error: 'Nicht in dieser Gruppe' });
 
       const lb = await sql`
-        SELECT u.id, u.display_name, u.ticket_type,
+        SELECT u.id, u.display_name, u.ticket_type, u.avatar,
           COALESCE(SUM(a.price), 0) as total_value,
           COUNT(a.id) as activity_count
         FROM group_members gm
         JOIN users u ON gm.user_id = u.id
         LEFT JOIN activities a ON a.user_id = u.id
         WHERE gm.group_id = ${groups[0].id}
-        GROUP BY u.id, u.display_name, u.ticket_type
+        GROUP BY u.id, u.display_name, u.ticket_type, u.avatar
         ORDER BY total_value DESC
       `;
       return res.status(200).json({
@@ -65,7 +65,7 @@ module.exports = async function handler(req, res) {
         leaderboard: lb.map((r, i) => ({
           rank: i + 1, userId: r.id, displayName: r.display_name, ticketType: r.ticket_type,
           totalValue: parseFloat(r.total_value), activityCount: parseInt(r.activity_count),
-          isMe: r.id === payload.userId,
+          isMe: r.id === payload.userId, avatar: r.avatar || null,
         })),
       });
     } catch (e) {

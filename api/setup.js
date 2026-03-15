@@ -70,6 +70,8 @@ module.exports = async function handler(req, res) {
       )
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_reset_codes_user ON reset_codes(user_id)`;
+    // Add avatar column if not exists
+    await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT`;
     await sql`CREATE INDEX IF NOT EXISTS idx_activities_user ON activities(user_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_gm_group ON group_members(group_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_gm_user ON group_members(user_id)`;
