@@ -2741,13 +2741,11 @@ async function handleAvatarUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
   if (!file.type.startsWith('image/')) { showToast('Nur Bilder erlaubt'); return; }
-  if (file.size > 500000) { showToast('Bild zu gro\u00DF (max 500KB)'); return; }
 
   try {
-    // Resize to 128x128 and compress
+    showToast('Wird verarbeitet...');
+    // Resize any size photo to 128x128 JPEG — always <20KB after compression
     const dataUrl = await resizeImage(file, 128);
-
-    showToast('Wird gespeichert...');
     await api('/api/auth?action=avatar', { method: 'POST', body: { avatar: dataUrl } });
 
     currentUser.avatar = dataUrl;
