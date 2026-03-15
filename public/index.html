@@ -1619,10 +1619,11 @@
     <div id="profileLoggedIn" style="display:none">
       <div class="lb-group-card">
         <div style="text-align:center;margin-bottom:16px">
-          <div style="position:relative;display:inline-block;cursor:pointer" onclick="document.getElementById('avatarInput').click()">
+          <div style="position:relative;display:inline-block;cursor:pointer" onclick="showAvatarOptions()">
             <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--ftt-blue),var(--ftt-blue-deep));display:flex;align-items:center;justify-content:center;font-size:30px;color:white;font-weight:900;overflow:hidden" id="profileAvatar">?</div>
             <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--ftt-orange);display:flex;align-items:center;justify-content:center;font-size:12px;color:white;border:2px solid white">&#128247;</div>
-            <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+            <input type="file" id="avatarInputGallery" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+            <input type="file" id="avatarInputSelfie" accept="image/*" capture="user" style="display:none" onchange="handleAvatarUpload(event)">
           </div>
           <div style="font-size:18px;font-weight:800;margin-top:10px" id="profileName">-</div>
           <div style="font-size:12px;color:var(--ftt-text-light);font-weight:500" id="profileEmail">-</div>
@@ -2676,6 +2677,50 @@ async function adminDeleteUser(userId, name) {
 }
 
 // ========== CHANGE PASSWORD ==========
+// ========== AVATAR ==========
+function showAvatarOptions() {
+  const actions = [
+    { label: '\uD83E\uDD33 Selfie aufnehmen', action: () => document.getElementById('avatarInputSelfie').click() },
+    { label: '\uD83D\uDDBC\uFE0F Aus Galerie w\u00E4hlen', action: () => document.getElementById('avatarInputGallery').click() },
+  ];
+  if (currentUser && currentUser.avatar) {
+    actions.push({ label: '\uD83D\uDDD1\uFE0F Profilbild entfernen', action: removeAvatar, danger: true });
+  }
+
+  // Simple action sheet via buttons
+  const existing = document.getElementById('avatarActionSheet');
+  if (existing) existing.remove();
+
+  const sheet = document.createElement('div');
+  sheet.id = 'avatarActionSheet';
+  sheet.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:250;display:flex;align-items:flex-end;justify-content:center;animation:overlayFadeIn 0.2s ease;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)';
+  sheet.onclick = (e) => { if (e.target === sheet) sheet.remove(); };
+
+  let btnsHtml = actions.map(a => {
+    const color = a.danger ? 'var(--ftt-danger)' : 'var(--ftt-text)';
+    return `<button style="width:100%;padding:16px;border:none;background:white;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;color:${color};border-bottom:1px solid #F0F2F5;-webkit-tap-highlight-color:transparent" data-idx="${actions.indexOf(a)}">${a.label}</button>`;
+  }).join('');
+  btnsHtml += `<button style="width:100%;padding:16px;border:none;background:white;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;color:var(--ftt-text-light);border-radius:0 0 20px 20px" onclick="this.closest('#avatarActionSheet').remove()">Abbrechen</button>`;
+
+  sheet.innerHTML = `<div style="width:100%;max-width:500px;background:white;border-radius:20px 20px 0 0;overflow:hidden;animation:slideUp 0.25s cubic-bezier(0.32,0.72,0,1)">${btnsHtml}</div>`;
+
+  // Bind actions
+  sheet.querySelectorAll('[data-idx]').forEach(btn => {
+    btn.onclick = () => { sheet.remove(); actions[parseInt(btn.dataset.idx)].action(); };
+  });
+
+  document.body.appendChild(sheet);
+}
+
+async function removeAvatar() {
+  try {
+    await api('/api/auth?action=avatar', { method: 'POST', body: { avatar: '' } });
+    currentUser.avatar = null;
+    updateAvatarDisplays();
+    showToast('Profilbild entfernt');
+  } catch(e) { showToast('Fehler: ' + e.message); }
+}
+
 // ========== AVATAR UPLOAD ==========
 async function handleAvatarUpload(e) {
   const file = e.target.files[0];

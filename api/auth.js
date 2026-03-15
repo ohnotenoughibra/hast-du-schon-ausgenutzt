@@ -226,13 +226,13 @@ module.exports = async function handler(req, res) {
     const payload = verifyToken(req);
     if (!payload) return res.status(401).json({ error: 'Nicht angemeldet' });
     const { avatar } = req.body || {};
-    if (!avatar) return res.status(400).json({ error: 'Bild erforderlich' });
-    // Max ~100KB base64 (roughly a 50KB image)
-    if (avatar.length > 150000) return res.status(400).json({ error: 'Bild zu gro\u00DF (max 100KB)' });
-    if (!avatar.startsWith('data:image/')) return res.status(400).json({ error: 'Ung\u00FCltiges Bildformat' });
+    if (avatar === undefined) return res.status(400).json({ error: 'Bild erforderlich' });
+    // Allow empty string to remove avatar
+    if (avatar && avatar.length > 150000) return res.status(400).json({ error: 'Bild zu gro\u00DF (max 100KB)' });
+    if (avatar && !avatar.startsWith('data:image/')) return res.status(400).json({ error: 'Ung\u00FCltiges Bildformat' });
     try {
-      await sql`UPDATE users SET avatar = ${avatar} WHERE id = ${payload.userId}`;
-      return res.status(200).json({ ok: true, avatar });
+      await sql`UPDATE users SET avatar = ${avatar || null} WHERE id = ${payload.userId}`;
+      return res.status(200).json({ ok: true, avatar: avatar || null });
     } catch (e) {
       return res.status(500).json({ error: 'Fehler beim Speichern' });
     }
