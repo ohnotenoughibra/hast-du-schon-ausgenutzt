@@ -1053,6 +1053,73 @@
     .chip { min-width: 0; }
   }
 
+  /* ========== FAMILY TICKETS ========== */
+  .family-ticket-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--ftt-card);
+    border: 2px solid #E8ECF0;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+  }
+
+  .family-ticket-item.primary { border-color: var(--ftt-blue); background: #F0F9FC; }
+
+  .family-ticket-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--ftt-blue);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .family-ticket-info { flex: 1; min-width: 0; }
+  .family-ticket-name { font-size: 13px; font-weight: 700; }
+  .family-ticket-type { font-size: 10px; color: var(--ftt-text-light); font-weight: 600; }
+  .family-ticket-price { font-size: 15px; font-weight: 800; color: var(--ftt-orange); flex-shrink: 0; }
+
+  .family-ticket-remove {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    flex-shrink: 0;
+  }
+
+  .family-ticket-remove:hover { color: var(--ftt-danger); }
+
+  .participant-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 2px solid #E8ECF0;
+    background: white;
+    color: var(--ftt-text);
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .participant-chip.checked {
+    border-color: var(--ftt-blue);
+    background: #EBF5FF;
+    color: var(--ftt-blue-deep);
+  }
+
   /* ========== ADMIN PANEL ========== */
   .admin-user-card {
     background: var(--ftt-card);
@@ -1592,9 +1659,16 @@
           <input type="number" class="form-input" id="activityHours" value="4" min="1" max="12" step="0.5">
         </div>
       </div>
+      <!-- Participants (shown when family members exist) -->
+      <div class="form-group" id="participantsGroup" style="display:none">
+        <label class="form-label">Wer war dabei?</label>
+        <div id="participantsList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+      </div>
+
       <div class="value-preview" id="valuePreview">
         <div class="value-preview-label">Ersparnis</div>
         <div class="value-preview-amount" id="valuePreviewAmount">&euro;0</div>
+        <div class="value-preview-label" id="valuePreviewDetail" style="margin-top:4px;font-size:9px"></div>
       </div>
       <button class="btn-submit" id="submitBtn" onclick="addActivity()" disabled>Hinzuf&uuml;gen</button>
     </div>
@@ -1606,15 +1680,46 @@
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-header">
-      <div class="modal-title">Ticket ausw&auml;hlen</div>
+      <div class="modal-title">Tickets verwalten</div>
       <button class="modal-close" onclick="closeSettings()">&#10005;</button>
     </div>
     <div class="modal-body">
+      <!-- Family tickets list -->
       <div class="form-group">
-        <label class="form-label">Dein Ticket (2025/26)</label>
-        <div class="ticket-type-cards" id="ticketTypeCards"></div>
+        <label class="form-label">Eure Tickets (2025/26)</label>
+        <div id="familyTicketsList"></div>
+        <button class="btn-outline" onclick="addFamilyMember()" style="margin-top:10px;font-size:13px">+ Familienmitglied hinzuf&uuml;gen</button>
       </div>
-      <button class="btn-submit" onclick="saveSettings()" style="margin-top:16px">Speichern</button>
+
+      <!-- Total investment display -->
+      <div style="background:#F0F9FC;border-radius:10px;padding:14px;text-align:center;margin-bottom:16px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ftt-text-light)">Gesamtinvestition</div>
+        <div style="font-size:28px;font-weight:900;color:var(--ftt-blue-deep)" id="totalInvestment">&euro;0</div>
+      </div>
+
+      <button class="btn-submit" onclick="saveSettings()" style="margin-top:0">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD FAMILY MEMBER MODAL -->
+<div class="modal-overlay" id="addFamilyModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Ticket hinzuf&uuml;gen</div>
+      <button class="modal-close" onclick="closeModal('addFamilyModal')">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-input" id="familyMemberName" placeholder="z.B. Kind, Papa, Oma..." maxlength="30">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ticket-Typ</label>
+        <div class="ticket-type-cards" id="familyTicketTypeCards"></div>
+      </div>
+      <button class="btn-submit" onclick="confirmAddFamilyMember()" id="addFamilyBtn">Hinzuf&uuml;gen</button>
     </div>
   </div>
 </div>
@@ -2017,6 +2122,7 @@ let state = {
   ticketType: 'adult_pre',
   activities: [],
   selectedVenueId: null,
+  familyMembers: [], // [{name, ticketType}]
 };
 
 let currentUser = null; // { id, email, displayName, ticketType }
@@ -2568,8 +2674,8 @@ function selectVenue(id) {
   const venue = venues.find(v => v.id === id);
   if (venue) {
     document.getElementById('valuePreview').classList.add('show');
-    document.getElementById('valuePreviewAmount').textContent = `\u20AC${venue.price.toFixed(2)}`;
     document.getElementById('submitBtn').disabled = false;
+    updateValuePreview();
   }
 }
 
@@ -2590,14 +2696,18 @@ async function addActivity() {
     }
   }
 
+  const participantCount = getParticipantCount();
+  const totalPrice = venue.price * participantCount;
+
   const activity = {
     venueId: venue.id,
     venueName: venue.name,
     category: venue.category,
     icon: venue.icon,
-    price: venue.price,
+    price: totalPrice,
     date: date,
     hours: hours,
+    participants: participantCount,
   };
 
   if (isOnline) {
@@ -2725,7 +2835,7 @@ function renderActivities() {
       <div class="activity-icon-wrap ${catClass}">${a.icon}</div>
       <div class="activity-info">
         <div class="activity-name">${esc(a.venueName)}</div>
-        <div class="activity-meta">${dateStr} \u00B7 ${a.hours}h</div>
+        <div class="activity-meta">${dateStr} \u00B7 ${a.hours}h${a.participants > 1 ? ' \u00B7 ' + a.participants + ' Pers.' : ''}</div>
       </div>
       <div class="activity-value">
         <div class="activity-value-amount">+\u20AC${a.price.toFixed(0)}</div>
@@ -2736,13 +2846,13 @@ function renderActivities() {
 }
 
 function updateDashboard() {
-  const ticket = ticketTypes.find(t => t.id === state.ticketType) || ticketTypes[0];
+  const totalTicketPrice = getTotalTicketPrice();
   const total = state.activities.reduce((s, a) => s + a.price, 0);
-  const pct = Math.min((total / ticket.price) * 100, 100);
+  const pct = Math.min((total / totalTicketPrice) * 100, 100);
   const avg = state.activities.length > 0 ? total / state.activities.length : 0;
 
   document.getElementById('heroValue').textContent = `\u20AC${total.toFixed(0)}`;
-  document.getElementById('heroTicketPrice').textContent = `\u20AC${ticket.price}`;
+  document.getElementById('heroTicketPrice').textContent = `\u20AC${totalTicketPrice}`;
   document.getElementById('progressBar').style.width = `${pct}%`;
   document.getElementById('statActivities').textContent = state.activities.length;
   document.getElementById('statPercent').textContent = `${Math.round(pct)}%`;
@@ -2785,7 +2895,55 @@ function openAddModal() {
   document.getElementById('submitBtn').disabled = true;
   document.getElementById('activityDate').value = new Date().toISOString().split('T')[0];
   renderVenues();
+  renderParticipants();
   document.getElementById('addModal').classList.add('active');
+}
+
+function renderParticipants() {
+  const group = document.getElementById('participantsGroup');
+  const list = document.getElementById('participantsList');
+  const members = state.familyMembers || [];
+
+  if (members.length === 0) {
+    group.style.display = 'none';
+    return;
+  }
+
+  group.style.display = 'block';
+  const all = [{ name: 'Ich', id: 'me' }, ...members.map((m, i) => ({ name: m.name, id: 'fam_' + i }))];
+
+  list.innerHTML = all.map(p => {
+    return `<button class="participant-chip checked" data-pid="${esc(p.id)}" onclick="toggleParticipant(this)">
+      <span>\u2713</span> ${esc(p.name)}
+    </button>`;
+  }).join('');
+}
+
+function toggleParticipant(btn) {
+  btn.classList.toggle('checked');
+  const isChecked = btn.classList.contains('checked');
+  btn.querySelector('span').textContent = isChecked ? '\u2713' : '';
+  updateValuePreview();
+}
+
+function getParticipantCount() {
+  const chips = document.querySelectorAll('.participant-chip');
+  if (chips.length === 0) return 1;
+  return document.querySelectorAll('.participant-chip.checked').length || 1;
+}
+
+function updateValuePreview() {
+  const venue = venues.find(v => v.id === state.selectedVenueId);
+  if (!venue) return;
+  const count = getParticipantCount();
+  const total = venue.price * count;
+  document.getElementById('valuePreviewAmount').textContent = `\u20AC${total.toFixed(2)}`;
+  const detail = document.getElementById('valuePreviewDetail');
+  if (count > 1) {
+    detail.textContent = `${count} Personen \u00D7 \u20AC${venue.price.toFixed(0)} = \u20AC${total.toFixed(0)}`;
+  } else {
+    detail.textContent = '';
+  }
 }
 
 function closeAddModal() {
@@ -2793,30 +2951,152 @@ function closeAddModal() {
 }
 
 function openSettings() {
-  const container = document.getElementById('ticketTypeCards');
-  let html = '';
-  let lastGroup = '';
-  ticketTypes.forEach(t => {
-    if (t.group !== lastGroup) {
-      lastGroup = t.group;
-      const desc = t.group === 'Familien-Kombi' ? 'Preis pro Kind/Jugendlicher bei gleichzeitigem Kauf mit 1 Erwachsenen-Ticket' : '';
-      html += `<div style="margin-top:${html ? '16px' : '0'};margin-bottom:6px">
-        <div style="font-size:12px;font-weight:800;color:var(--ftt-text);text-transform:uppercase;letter-spacing:1px">${esc(t.group)}</div>
-        ${desc ? `<div style="font-size:10px;color:var(--ftt-text-light);margin-top:2px">${desc}</div>` : ''}
-      </div>`;
-    }
-    const sel = state.ticketType === t.id ? 'selected' : '';
-    html += `<div class="ticket-type-card ${sel}" onclick="selectTicketType('${t.id}', this)">
-      <span class="ticket-type-name">${t.name}</span>
-      <span class="ticket-type-price">\u20AC${t.price}</span>
-    </div>`;
-  });
-  container.innerHTML = html;
+  renderFamilyTicketsList();
+  updateTotalInvestment();
   document.getElementById('settingsModal').classList.add('active');
 }
 
 function closeSettings() {
   document.getElementById('settingsModal').classList.remove('active');
+}
+
+function renderFamilyTicketsList() {
+  const list = document.getElementById('familyTicketsList');
+  const myTicket = ticketTypes.find(t => t.id === state.ticketType) || ticketTypes[0];
+
+  let html = `<div class="family-ticket-item primary">
+    <div class="family-ticket-icon">Ich</div>
+    <div class="family-ticket-info">
+      <div class="family-ticket-name">Mein Ticket</div>
+      <div class="family-ticket-type">${esc(myTicket.name)}</div>
+    </div>
+    <div class="family-ticket-price">\u20AC${myTicket.price}</div>
+    <button class="family-ticket-remove" onclick="changeMyTicket()" title="\u00C4ndern" style="color:var(--ftt-blue)">&#9998;</button>
+  </div>`;
+
+  (state.familyMembers || []).forEach((m, i) => {
+    const t = ticketTypes.find(tt => tt.id === m.ticketType);
+    const price = t ? t.price : 0;
+    const initial = m.name.charAt(0).toUpperCase();
+    html += `<div class="family-ticket-item">
+      <div class="family-ticket-icon" style="background:var(--ftt-orange)">${esc(initial)}</div>
+      <div class="family-ticket-info">
+        <div class="family-ticket-name">${esc(m.name)}</div>
+        <div class="family-ticket-type">${t ? esc(t.name) : '?'}</div>
+      </div>
+      <div class="family-ticket-price">\u20AC${price}</div>
+      <button class="family-ticket-remove" onclick="removeFamilyMember(${i})" title="Entfernen">\u2715</button>
+    </div>`;
+  });
+
+  list.innerHTML = html;
+}
+
+function updateTotalInvestment() {
+  const myTicket = ticketTypes.find(t => t.id === state.ticketType) || ticketTypes[0];
+  let total = myTicket.price;
+  (state.familyMembers || []).forEach(m => {
+    const t = ticketTypes.find(tt => tt.id === m.ticketType);
+    if (t) total += t.price;
+  });
+  document.getElementById('totalInvestment').textContent = `\u20AC${total}`;
+}
+
+function getTotalTicketPrice() {
+  const myTicket = ticketTypes.find(t => t.id === state.ticketType) || ticketTypes[0];
+  let total = myTicket.price;
+  (state.familyMembers || []).forEach(m => {
+    const t = ticketTypes.find(tt => tt.id === m.ticketType);
+    if (t) total += t.price;
+  });
+  return total;
+}
+
+let selectedFamilyTicketType = null;
+
+function changeMyTicket() {
+  selectedFamilyTicketType = state.ticketType;
+  const container = document.getElementById('familyTicketTypeCards');
+  renderTicketTypeSelector(container, state.ticketType, 'selectMyTicketType');
+  document.getElementById('familyMemberName').value = 'Mein Ticket';
+  document.getElementById('familyMemberName').disabled = true;
+  document.getElementById('addFamilyBtn').textContent = '\u00C4ndern';
+  document.getElementById('addFamilyBtn').onclick = function() {
+    if (selectedFamilyTicketType) {
+      state.ticketType = selectedFamilyTicketType;
+      renderFamilyTicketsList();
+      updateTotalInvestment();
+      closeModal('addFamilyModal');
+      document.getElementById('familyMemberName').disabled = false;
+      document.getElementById('addFamilyBtn').textContent = 'Hinzuf\u00FCgen';
+      document.getElementById('addFamilyBtn').onclick = confirmAddFamilyMember;
+    }
+  };
+  document.getElementById('addFamilyModal').classList.add('active');
+}
+
+function addFamilyMember() {
+  selectedFamilyTicketType = null;
+  document.getElementById('familyMemberName').value = '';
+  document.getElementById('familyMemberName').disabled = false;
+  document.getElementById('addFamilyBtn').textContent = 'Hinzuf\u00FCgen';
+  document.getElementById('addFamilyBtn').onclick = confirmAddFamilyMember;
+  const container = document.getElementById('familyTicketTypeCards');
+  renderTicketTypeSelector(container, null, 'selectFamilyTicketType');
+  document.getElementById('addFamilyModal').classList.add('active');
+}
+
+function renderTicketTypeSelector(container, selectedId, fnName) {
+  let html = '';
+  let lastGroup = '';
+  ticketTypes.forEach(t => {
+    if (t.group !== lastGroup) {
+      lastGroup = t.group;
+      const desc = t.group === 'Familien-Kombi' ? 'Bei gleichzeitigem Kauf mit Erwachsenen-Ticket' : '';
+      html += `<div style="margin-top:${html ? '14px' : '0'};margin-bottom:6px">
+        <div style="font-size:11px;font-weight:800;color:var(--ftt-text);text-transform:uppercase;letter-spacing:1px">${esc(t.group)}</div>
+        ${desc ? `<div style="font-size:10px;color:var(--ftt-text-light);margin-top:2px">${desc}</div>` : ''}
+      </div>`;
+    }
+    const sel = selectedId === t.id ? 'selected' : '';
+    html += `<div class="ticket-type-card ${sel}" onclick="${fnName}('${t.id}', this)">
+      <span class="ticket-type-name">${t.name}</span>
+      <span class="ticket-type-price">\u20AC${t.price}</span>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function selectFamilyTicketType(id, el) {
+  selectedFamilyTicketType = id;
+  el.closest('.ticket-type-cards').querySelectorAll('.ticket-type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectMyTicketType(id, el) {
+  selectedFamilyTicketType = id;
+  el.closest('.ticket-type-cards').querySelectorAll('.ticket-type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function confirmAddFamilyMember() {
+  const name = document.getElementById('familyMemberName').value.trim();
+  if (!name) { showToast('Name eingeben'); return; }
+  if (!selectedFamilyTicketType) { showToast('Ticket-Typ ausw\u00E4hlen'); return; }
+
+  if (!state.familyMembers) state.familyMembers = [];
+  state.familyMembers.push({ name, ticketType: selectedFamilyTicketType });
+
+  closeModal('addFamilyModal');
+  renderFamilyTicketsList();
+  updateTotalInvestment();
+}
+
+function removeFamilyMember(index) {
+  if (!confirm('Familienmitglied entfernen?')) return;
+  state.familyMembers.splice(index, 1);
+  renderFamilyTicketsList();
+  updateTotalInvestment();
 }
 
 function selectTicketType(id, el) {
@@ -2842,7 +3122,7 @@ function closeModal(id) {
 }
 
 // Click outside modals to close
-['addModal', 'settingsModal', 'authModal', 'createGroupModal', 'joinGroupModal', 'codeResultModal', 'editNameModal', 'shareModal', 'changePasswordModal'].forEach(id => {
+['addModal', 'settingsModal', 'authModal', 'createGroupModal', 'joinGroupModal', 'codeResultModal', 'editNameModal', 'shareModal', 'changePasswordModal', 'addFamilyModal'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target === this) closeModal(id);
   });
@@ -3084,7 +3364,7 @@ function updateDailyCost() {
   const card = document.getElementById('dailyCostCard');
   if (state.activities.length === 0) { card.style.display = 'none'; return; }
 
-  const ticket = ticketTypes.find(t => t.id === state.ticketType) || ticketTypes[0];
+  const totalTicket = getTotalTicketPrice();
   const total = state.activities.reduce((s, a) => s + a.price, 0);
 
   // Count unique days with activities
@@ -3096,8 +3376,8 @@ function updateDailyCost() {
   if (now < seasonStart) seasonStart.setFullYear(seasonStart.getFullYear() - 1);
   const daysSinceStart = Math.max(1, Math.ceil((now - seasonStart) / 86400000));
 
-  const costPerDay = ticket.price / daysSinceStart;
-  const saved = total - ticket.price;
+  const costPerDay = totalTicket / daysSinceStart;
+  const saved = total - totalTicket;
 
   card.style.display = 'flex';
   document.getElementById('dailyCostValue').textContent = `\u20AC${costPerDay.toFixed(2)}`;
