@@ -3306,7 +3306,7 @@ function closeModal(id) {
 }
 
 // Click outside modals to close
-['addModal', 'settingsModal', 'authModal', 'createGroupModal', 'joinGroupModal', 'codeResultModal', 'editNameModal', 'shareModal', 'changePasswordModal', 'addFamilyModal'].forEach(id => {
+['addModal', 'settingsModal', 'createGroupModal', 'joinGroupModal', 'codeResultModal', 'editNameModal', 'shareModal', 'changePasswordModal', 'addFamilyModal'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target === this) closeModal(id);
   });
