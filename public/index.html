@@ -3957,17 +3957,17 @@ function showUpdateBanner() {
   banner.style.cssText = `
     position: fixed; top: 0; left: 0; right: 0; z-index: 300;
     background: linear-gradient(135deg, #27AE60, #1E8449);
-    color: white; padding: 12px 20px; display: flex;
+    color: white; padding: 12px 20px; padding-top: calc(12px + env(safe-area-inset-top, 0px)); display: flex;
     align-items: center; justify-content: space-between;
     font-family: Montserrat, sans-serif; font-size: 13px; font-weight: 600;
     box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   `;
   banner.innerHTML = `
     <span>Neue Version verf\u00FCgbar!</span>
-    <button onclick="location.reload()" style="background:white;color:#1E8449;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:12px">Aktualisieren</button>
+    <button onclick="location.reload()" style="background:white;color:#1E8449;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px">Aktualisieren</button>
   `;
   document.body.appendChild(banner);
-  document.querySelector('.header').style.marginTop = '48px';
+  document.querySelector('.header').style.marginTop = 'calc(48px + env(safe-area-inset-top, 0px))';
 }
 
 // ========== PWA INSTALL PROMPT ==========
@@ -3980,7 +3980,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   banner.style.cssText = `
     position: fixed; top: 0; left: 0; right: 0; z-index: 300;
     background: linear-gradient(135deg, #1B7A9A, #2D8FAD);
-    color: white; padding: 12px 20px; display: flex;
+    color: white; padding: 12px 20px; padding-top: calc(12px + env(safe-area-inset-top, 0px)); display: flex;
     align-items: center; justify-content: space-between;
     font-family: Montserrat, sans-serif; font-size: 13px; font-weight: 600;
     box-shadow: 0 4px 16px rgba(0,0,0,0.2);
@@ -3988,8 +3988,8 @@ window.addEventListener('beforeinstallprompt', (e) => {
   banner.innerHTML = `
     <span>\uD83D\uDCF2 Als App installieren?</span>
     <div>
-      <button onclick="installApp()" style="background:#E8871E;color:white;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:12px;margin-right:8px">Installieren</button>
-      <button onclick="dismissInstall()" style="background:rgba(255,255,255,0.2);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px">Nein</button>
+      <button onclick="installApp()" style="background:#E8871E;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;margin-right:8px">Installieren</button>
+      <button onclick="dismissInstall()" style="background:rgba(255,255,255,0.2);color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px">Nein</button>
     </div>
   `;
   document.body.appendChild(banner);
