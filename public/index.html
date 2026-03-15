@@ -3529,10 +3529,18 @@ async function loadMyGroups(force) {
   // Always hide the not-logged-in state
   lbNotLoggedIn.style.display = 'none';
 
-  // Show loading
-  lbGroups.innerHTML = '<div style="text-align:center;padding:40px"><span class="loading-spinner" style="border-color:rgba(0,0,0,0.1);border-top-color:var(--ftt-blue);width:24px;height:24px"></span></div>';
-  lbGroups.style.display = 'block';
-  lbNoGroups.style.display = 'none';
+  // Show cached version instantly, then refresh in background
+  if (_lbCache) {
+    lbGroups.innerHTML = _lbCache;
+    lbGroups.style.display = 'block';
+    lbNoGroups.style.display = 'none';
+    lbGroupActions.style.display = 'block';
+  } else {
+    // No cache — show spinner
+    lbGroups.innerHTML = '<div style="text-align:center;padding:40px"><span class="loading-spinner" style="border-color:rgba(0,0,0,0.1);border-top-color:var(--ftt-blue);width:24px;height:24px"></span></div>';
+    lbGroups.style.display = 'block';
+    lbNoGroups.style.display = 'none';
+  }
 
   try {
     const data = await api('/api/groups?action=mine');
